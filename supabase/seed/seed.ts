@@ -2,12 +2,20 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { db } from "../../src/lib/db";
-import { subjects, chapters, topics } from "../../src/lib/db/schema";
+import {
+  subjects,
+  chapters,
+  topics,
+  contentBlocks,
+  questions,
+  questionOptions,
+} from "../../src/lib/db/schema";
 import {
   CHEMISTRY_SUBJECT,
   SOLUTIONS_CHAPTER,
   SOLUTIONS_TOPICS,
 } from "../../src/features/subjects/data";
+import { TOPIC_01_CONTENT_BLOCKS } from "../../src/features/content/data/topic-01-data";
 
 async function runSeed() {
   console.log("Seeding Chemistry subject...");
@@ -76,7 +84,83 @@ async function runSeed() {
       });
   }
 
-  console.log("Successfully seeded Solutions chapter and 20 topics.");
+  console.log("Seeding Topic 1 content blocks and questions...");
+  for (const block of TOPIC_01_CONTENT_BLOCKS) {
+    await db
+      .insert(contentBlocks)
+      .values({
+        id: block.id,
+        topicId: block.topicId,
+        type: block.type,
+        title: block.title,
+        description: block.description,
+        content: block.content,
+        displayOrder: block.displayOrder,
+        isPublished: block.isPublished,
+      })
+      .onConflictDoUpdate({
+        target: contentBlocks.id,
+        set: {
+          title: block.title,
+          description: block.description,
+          content: block.content,
+          displayOrder: block.displayOrder,
+          isPublished: block.isPublished,
+        },
+      });
+
+    if (block.questions && block.questions.length > 0) {
+      for (const q of block.questions) {
+        await db
+          .insert(questions)
+          .values({
+            id: q.id,
+            contentBlockId: block.id,
+            questionText: q.questionText,
+            questionType: q.questionType,
+            difficulty: q.difficulty,
+            marks: q.marks,
+            explanation: q.explanation,
+            displayOrder: q.displayOrder,
+          })
+          .onConflictDoUpdate({
+            target: questions.id,
+            set: {
+              questionText: q.questionText,
+              questionType: q.questionType,
+              difficulty: q.difficulty,
+              marks: q.marks,
+              explanation: q.explanation,
+              displayOrder: q.displayOrder,
+            },
+          });
+
+        if (q.options && q.options.length > 0) {
+          for (const opt of q.options) {
+            await db
+              .insert(questionOptions)
+              .values({
+                id: opt.id,
+                questionId: q.id,
+                optionText: opt.optionText,
+                isCorrect: opt.isCorrect,
+                displayOrder: opt.displayOrder,
+              })
+              .onConflictDoUpdate({
+                target: questionOptions.id,
+                set: {
+                  optionText: opt.optionText,
+                  isCorrect: opt.isCorrect,
+                  displayOrder: opt.displayOrder,
+                },
+              });
+          }
+        }
+      }
+    }
+  }
+
+  console.log("Successfully seeded Solutions chapter, 20 topics, and Topic 1 content.");
   process.exit(0);
 }
 

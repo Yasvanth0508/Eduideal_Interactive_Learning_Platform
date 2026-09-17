@@ -3,19 +3,29 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowRight,
   ChevronRight,
   Sparkles,
   BookOpen,
   Clock,
   Layers,
+  MapPin,
 } from "lucide-react";
 import { getTopicBySlug } from "@/features/subjects/queries";
+import { getTopicContentBlocks } from "@/features/content/queries";
+import { ContentBlockRenderer } from "@/features/content/components/content-block-renderer";
 
 interface TopicPageProps {
   params: Promise<{
     topicSlug: string;
   }>;
 }
+
+const BRANCHES = [
+  { city: "Perambur", address: "MPM Street", phone: "9884234949" },
+  { city: "Kodungaiyur", address: "Near Pandiyan Theatre", phone: "9790924949" },
+  { city: "Agaram Jn.", address: "Agaram Jn.", phone: "7845977500" },
+];
 
 export async function generateMetadata({
   params,
@@ -45,6 +55,10 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
   const formattedNumber = String(topic.displayOrder).padStart(2, "0");
 
+  // Fetch content blocks for this topic
+  const contentBlocks = await getTopicContentBlocks(topic.id);
+  const isLessonActive = topic.slug === "introduction-to-solutions" && contentBlocks.length > 0;
+
   return (
     <div className="min-h-screen bg-white text-black antialiased font-sans flex flex-col justify-between selection:bg-[#C0222E] selection:text-white">
       {/* Header */}
@@ -73,11 +87,11 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
       {/* Main Content */}
       <main className="flex-1">
-        {/* Topic Title Section */}
+        {/* Topic Title Header Section */}
         <section className="bg-white border-b border-[#E5E5E5]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
             {/* Breadcrumb Navigation */}
-            <nav className="flex items-center gap-2 text-xs font-medium text-[#555555] mb-6 flex-wrap">
+            <nav className="flex items-center gap-2 text-xs font-medium text-[#555555] mb-5 flex-wrap">
               <Link href="/" className="hover:text-black transition-colors">
                 Dashboard
               </Link>
@@ -98,7 +112,7 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
               </span>
             </nav>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className="text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5"
@@ -113,71 +127,164 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
                 </span>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-[#555555] border border-[#E5E5E5] flex items-center gap-1">
                   <Layers className="w-3.5 h-3.5" />
-                  <span>Class 12 CBSE</span>
+                  <span>CBSE Class 12</span>
+                </span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>12 Min Interactive Lesson</span>
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-black tracking-tight">
+              <h1 className="text-3xl sm:text-5xl font-black text-black tracking-tight">
                 {topic.name}
               </h1>
 
-              <p className="text-base sm:text-lg text-[#555555] leading-relaxed">
-                {topic.description || "Master core concepts in this topic."}
+              <p className="text-base sm:text-lg text-[#555555] leading-relaxed max-w-2xl">
+                {topic.description || "Master foundational concepts in this topic."}
               </p>
             </div>
           </div>
         </section>
 
-        {/* Placeholder Notice Card */}
-        <section className="py-16 sm:py-24 bg-[#FAFAFA]">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#E5E5E5] shadow-sm text-center max-w-2xl mx-auto flex flex-col items-center gap-6">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xs"
-                style={{
-                  background: "var(--brand-tint)",
-                  color: "var(--brand)",
-                  border: "1px solid var(--brand-border)",
-                }}
-              >
-                <Sparkles className="w-8 h-8" />
-              </div>
+        {/* Content Body: Active Interactive Lesson vs Coming Soon Placeholder */}
+        {isLessonActive ? (
+          <section className="py-10 sm:py-14 bg-white">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-12">
+              {/* Sequential Content Blocks */}
+              {contentBlocks.map((block) => (
+                <ContentBlockRenderer key={block.id} block={block} />
+              ))}
 
-              <div className="space-y-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold font-mono px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                  <Clock className="w-3 h-3 text-amber-600" />
-                  <span>CONTENT PHASE PREPARATION</span>
-                </span>
-
-                <h2 className="text-2xl font-bold text-black tracking-tight">
-                  Educational Content Coming Soon
-                </h2>
-
-                <p className="text-sm text-[#555555] leading-relaxed max-w-md mx-auto">
-                  The chapter structure and topic routing are active. Detailed
-                  theory, dynamic formula calculations, live scientific graphs,
-                  and NCERT practice problems will be configured in the next phase.
-                </p>
-              </div>
-
-              <div className="pt-2">
+              {/* Bottom Topic Navigation Footer */}
+              <div className="pt-10 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center justify-between gap-4">
                 <Link
                   href="/chemistry/solutions"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 cursor-pointer"
-                  style={{ background: "var(--brand)" }}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Return to Chapter Topics</span>
+                  <span>Back to Solutions Overview</span>
+                </Link>
+
+                <Link
+                  href="/chemistry/solutions/types-of-solutions"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-sm hover:opacity-95"
+                  style={{ background: "var(--brand)" }}
+                >
+                  <span>Next: Types of Solutions</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          /* Placeholder Notice Card for other topics (Topics 2–20) */
+          <section className="py-16 sm:py-24 bg-[#FAFAFA]">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6">
+              <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#E5E5E5] shadow-sm text-center max-w-2xl mx-auto flex flex-col items-center gap-6">
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xs"
+                  style={{
+                    background: "var(--brand-tint)",
+                    color: "var(--brand)",
+                    border: "1px solid var(--brand-border)",
+                  }}
+                >
+                  <Sparkles className="w-8 h-8" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold font-mono px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                    <Clock className="w-3 h-3 text-amber-600" />
+                    <span>CONTENT PHASE PREPARATION</span>
+                  </span>
+
+                  <h2 className="text-2xl font-bold text-black tracking-tight">
+                    Educational Content Coming Soon
+                  </h2>
+
+                  <p className="text-sm text-[#555555] leading-relaxed max-w-md mx-auto">
+                    The chapter structure and topic routing are active. Detailed
+                    theory, dynamic formula calculations, live scientific graphs,
+                    and NCERT practice problems will be configured in the next phase.
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/chemistry/solutions"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                    style={{ background: "var(--brand)" }}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Return to Chapter Topics</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-[#E5E5E5] bg-white text-center text-xs text-[#555555] font-mono">
-        Learnova &bull; EDUiDEAL Academy &copy; 2026
+      {/* Academy Footer */}
+      <footer className="border-t border-[#E5E5E5] bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/assets/eduideal-logo-BUtjWTvV.png"
+                  alt="EDUiDEAL Academy"
+                  className="h-8 w-auto object-contain"
+                />
+              </div>
+              <p className="text-xs text-[#555555] leading-relaxed max-w-sm">
+                Interactive learning platform for CBSE Class 12. Designed for
+                concept clarity, visual understanding, and board examination excellence.
+              </p>
+            </div>
+
+            <div className="md:col-span-2">
+              <h4 className="font-bold text-xs text-black uppercase tracking-wider mb-3">
+                EDUiDEAL Academy Branches
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {BRANCHES.map((b) => (
+                  <div
+                    key={b.city}
+                    className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5]"
+                  >
+                    <div className="flex items-center gap-1 text-xs font-bold text-black">
+                      <MapPin className="w-3 h-3 text-[#C0222E]" />
+                      <span>{b.city}</span>
+                    </div>
+                    <div className="text-[11px] text-[#555555] mt-0.5">
+                      {b.address}
+                    </div>
+                    <div className="text-[11px] font-semibold text-[#C0222E] mt-1">
+                      {b.phone}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#555555]">
+            <span>
+              &copy; 2026 Learnova &bull; EDUiDEAL ACADEMY. All rights reserved.
+            </span>
+            <div className="flex items-center gap-4 font-mono">
+              <Link href="/chemistry/solutions" className="hover:text-[#C0222E] transition-colors">
+                Solutions Chapter
+              </Link>
+              <span>&bull;</span>
+              <Link href="/chemistry" className="hover:text-[#C0222E] transition-colors">
+                Chemistry
+              </Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
