@@ -79,6 +79,27 @@ export interface QuestionItem {
   hint?: string;
 }
 
+export interface FormulaVariableItem {
+  id: string;
+  symbol: string;
+  label: string;
+  unit: string | null;
+  dataType: string;
+  defaultValue: number;
+  minValue?: number | null;
+  maxValue?: number | null;
+  displayOrder: number;
+}
+
+export interface FormulaConfigItem {
+  id: string;
+  name: string;
+  formulaExpression: string;
+  resultUnit: string | null;
+  description: string | null;
+  variables: FormulaVariableItem[];
+}
+
 export interface ContentBlockWithDetails {
   id: string;
   topicId: string;
@@ -89,4 +110,5 @@ export interface ContentBlockWithDetails {
   displayOrder: number;
   isPublished: boolean;
   questions?: QuestionItem[];
+  formulaConfig?: FormulaConfigItem;
 }

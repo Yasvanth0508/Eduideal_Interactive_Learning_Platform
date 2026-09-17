@@ -35,8 +35,34 @@ interface FormulaBlockRendererProps {
 }
 
 export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlockRendererProps) {
-  // Config can be passed as a prop or retrieved from block.content
-  const config = propConfig || (block?.content as unknown as FormulaConfigPayload);
+  // Config can be passed as a prop, derived from block.formulaConfig, or retrieved from block.content
+  const dbConfig: FormulaConfigPayload | null = block?.formulaConfig
+    ? {
+        formulaName: block.formulaConfig.name,
+        expression: block.formulaConfig.formulaExpression,
+        description: block.formulaConfig.description || "",
+        resultLabel: block.formulaConfig.name,
+        resultUnit: block.formulaConfig.resultUnit || "",
+        resultSymbol: "Result",
+        variables: block.formulaConfig.variables.map(
+          (v): FormulaVariableInput => ({
+            symbol: v.symbol,
+            label: v.label,
+            unit: v.unit || "",
+            defaultValue: v.defaultValue,
+            min: v.minValue ?? undefined,
+            max: v.maxValue ?? undefined,
+          })
+        ),
+        calculate: () => ({
+          result: 0,
+          steps: ["Step-by-step substitution from database formula config."],
+        }),
+      }
+    : null;
+
+  const config =
+    propConfig || dbConfig || (block?.content as unknown as FormulaConfigPayload);
 
   if (!config || !config.variables) {
     return null;

@@ -3,6 +3,8 @@ import {
   contentBlocks,
   questions,
   questionOptions,
+  formulaConfigs,
+  formulaVariables,
 } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import {
@@ -10,10 +12,12 @@ import {
   QuestionItem,
   QuestionOptionItem,
   TheoryBlockContent,
+  FormulaConfigItem,
 } from "./types";
 import {
   ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID,
 } from "./data";
+import { FORMULA_CONFIGS_BY_BLOCK_ID } from "./data/formulas-data";
 
 /**
  * Fetches all published content blocks and associated questions for a topic.
@@ -36,10 +40,10 @@ export async function getTopicContentBlocks(
       .orderBy(asc(contentBlocks.displayOrder));
 
     if (!blocks || blocks.length === 0) {
-      return ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID[topicId] || [];
+      return getEnrichedFallbackBlocks(topicId);
     }
 
-    // 2. Hydrate questions for QUESTIONS blocks
+    // 2. Hydrate questions and formulas
     const results: ContentBlockWithDetails[] = [];
 
     for (const block of blocks) {
@@ -47,6 +51,41 @@ export async function getTopicContentBlocks(
         | TheoryBlockContent
         | Record<string, unknown>
         | null;
+
+      // Check for associated formula config
+      let hydratedFormulaConfig: FormulaConfigItem | undefined = undefined;
+      const formulaRows = await db
+        .select()
+        .from(formulaConfigs)
+        .where(eq(formulaConfigs.contentBlockId, block.id));
+
+      if (formulaRows && formulaRows.length > 0) {
+        const fc = formulaRows[0];
+        const variableRows = await db
+          .select()
+          .from(formulaVariables)
+          .where(eq(formulaVariables.formulaId, fc.id))
+          .orderBy(asc(formulaVariables.displayOrder));
+
+        hydratedFormulaConfig = {
+          id: fc.id,
+          name: fc.name,
+          formulaExpression: fc.formulaExpression,
+          resultUnit: fc.resultUnit,
+          description: fc.description,
+          variables: variableRows.map((v) => ({
+            id: v.id,
+            symbol: v.symbol,
+            label: v.label,
+            unit: v.unit,
+            dataType: v.dataType,
+            defaultValue: parseFloat(v.defaultValue || "0"),
+            minValue: v.minValue ? parseFloat(v.minValue) : null,
+            maxValue: v.maxValue ? parseFloat(v.maxValue) : null,
+            displayOrder: v.displayOrder,
+          })),
+        };
+      }
 
       if (block.type === "QUESTIONS") {
         const questionRows = await db
@@ -93,6 +132,7 @@ export async function getTopicContentBlocks(
           displayOrder: block.displayOrder,
           isPublished: block.isPublished,
           questions: hydratedQuestions,
+          formulaConfig: hydratedFormulaConfig,
         });
       } else {
         results.push({
@@ -104,6 +144,7 @@ export async function getTopicContentBlocks(
           content: typedContent,
           displayOrder: block.displayOrder,
           isPublished: block.isPublished,
+          formulaConfig: hydratedFormulaConfig,
         });
       }
     }
@@ -111,6 +152,38 @@ export async function getTopicContentBlocks(
     return results;
   } catch {
     // Graceful fallback for local development or during static site generation
-    return ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID[topicId] || [];
+    return getEnrichedFallbackBlocks(topicId);
   }
+}
+
+function getEnrichedFallbackBlocks(topicId: string): ContentBlockWithDetails[] {
+  const fallbackBlocks = ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID[topicId] || [];
+  return fallbackBlocks.map((block) => {
+    const rawFormula = FORMULA_CONFIGS_BY_BLOCK_ID[block.id];
+    if (!rawFormula) return block;
+
+    const formulaConfig: FormulaConfigItem = {
+      id: rawFormula.id,
+      name: rawFormula.name,
+      formulaExpression: rawFormula.formulaExpression,
+      resultUnit: rawFormula.resultUnit,
+      description: rawFormula.description,
+      variables: rawFormula.variables.map((v) => ({
+        id: v.id,
+        symbol: v.symbol,
+        label: v.label,
+        unit: v.unit,
+        dataType: v.dataType,
+        defaultValue: parseFloat(v.defaultValue || "0"),
+        minValue: v.minValue ? parseFloat(v.minValue) : null,
+        maxValue: v.maxValue ? parseFloat(v.maxValue) : null,
+        displayOrder: v.displayOrder,
+      })),
+    };
+
+    return {
+      ...block,
+      formulaConfig,
+    };
+  });
 }

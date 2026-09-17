@@ -9,6 +9,8 @@ import {
   contentBlocks,
   questions,
   questionOptions,
+  formulaConfigs,
+  formulaVariables,
 } from "../../src/lib/db/schema";
 import {
   CHEMISTRY_SUBJECT,
@@ -16,6 +18,7 @@ import {
   SOLUTIONS_TOPICS,
 } from "../../src/features/subjects/data";
 import { ALL_SOLUTIONS_CONTENT_BLOCKS } from "../../src/features/content/data";
+import { ALL_FORMULA_CONFIGS } from "../../src/features/content/data/formulas-data";
 
 async function runSeed() {
   console.log("Seeding Chemistry subject...");
@@ -160,7 +163,62 @@ async function runSeed() {
     }
   }
 
-  console.log("Successfully seeded Solutions chapter, 20 topics, and all content blocks/questions for Topics 1–20.");
+  console.log(`Seeding ${ALL_FORMULA_CONFIGS.length} formula configs and variables...`);
+  for (const formula of ALL_FORMULA_CONFIGS) {
+    await db
+      .insert(formulaConfigs)
+      .values({
+        id: formula.id,
+        contentBlockId: formula.contentBlockId,
+        name: formula.name,
+        formulaExpression: formula.formulaExpression,
+        resultUnit: formula.resultUnit,
+        description: formula.description,
+      })
+      .onConflictDoUpdate({
+        target: formulaConfigs.id,
+        set: {
+          name: formula.name,
+          formulaExpression: formula.formulaExpression,
+          resultUnit: formula.resultUnit,
+          description: formula.description,
+        },
+      });
+
+    if (formula.variables && formula.variables.length > 0) {
+      for (const v of formula.variables) {
+        await db
+          .insert(formulaVariables)
+          .values({
+            id: v.id,
+            formulaId: v.formulaId,
+            symbol: v.symbol,
+            label: v.label,
+            unit: v.unit,
+            dataType: v.dataType,
+            defaultValue: v.defaultValue,
+            minValue: v.minValue,
+            maxValue: v.maxValue,
+            displayOrder: v.displayOrder,
+          })
+          .onConflictDoUpdate({
+            target: formulaVariables.id,
+            set: {
+              symbol: v.symbol,
+              label: v.label,
+              unit: v.unit,
+              dataType: v.dataType,
+              defaultValue: v.defaultValue,
+              minValue: v.minValue,
+              maxValue: v.maxValue,
+              displayOrder: v.displayOrder,
+            },
+          });
+      }
+    }
+  }
+
+  console.log("Successfully seeded Solutions chapter, 20 topics, content blocks, questions, and formula configs/variables.");
   process.exit(0);
 }
 
