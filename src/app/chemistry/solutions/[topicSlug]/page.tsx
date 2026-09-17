@@ -11,7 +11,7 @@ import {
   Layers,
   MapPin,
 } from "lucide-react";
-import { getTopicBySlug } from "@/features/subjects/queries";
+import { getChapterWithTopics, getTopicBySlug } from "@/features/subjects/queries";
 import { getTopicContentBlocks } from "@/features/content/queries";
 import { ContentBlockRenderer } from "@/features/content/components/content-block-renderer";
 
@@ -55,9 +55,24 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
   const formattedNumber = String(topic.displayOrder).padStart(2, "0");
 
+  // Fetch all topics to calculate previous and next pagination
+  const chapterData = await getChapterWithTopics("chemistry", "solutions");
+  const sortedTopics = chapterData?.topics
+    ? [...chapterData.topics]
+        .filter((t) => t.isPublished)
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+    : [];
+
+  const currentIndex = sortedTopics.findIndex((t) => t.slug === topicSlug);
+  const prevTopic = currentIndex > 0 ? sortedTopics[currentIndex - 1] : null;
+  const nextTopic =
+    currentIndex >= 0 && currentIndex < sortedTopics.length - 1
+      ? sortedTopics[currentIndex + 1]
+      : null;
+
   // Fetch content blocks for this topic
   const contentBlocks = await getTopicContentBlocks(topic.id);
-  const isLessonActive = topic.slug === "introduction-to-solutions" && contentBlocks.length > 0;
+  const isLessonActive = contentBlocks.length > 0;
 
   return (
     <div className="min-h-screen bg-white text-black antialiased font-sans flex flex-col justify-between selection:bg-[#C0222E] selection:text-white">
@@ -157,27 +172,48 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
               {/* Bottom Topic Navigation Footer */}
               <div className="pt-10 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center justify-between gap-4">
-                <Link
-                  href="/chemistry/solutions"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Solutions Overview</span>
-                </Link>
+                {prevTopic ? (
+                  <Link
+                    href={`/chemistry/solutions/${prevTopic.slug}`}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Previous: {prevTopic.name}</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/chemistry/solutions"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Back to Solutions Overview</span>
+                  </Link>
+                )}
 
-                <Link
-                  href="/chemistry/solutions/types-of-solutions"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-sm hover:opacity-95"
-                  style={{ background: "var(--brand)" }}
-                >
-                  <span>Next: Types of Solutions</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                {nextTopic ? (
+                  <Link
+                    href={`/chemistry/solutions/${nextTopic.slug}`}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-sm hover:opacity-95"
+                    style={{ background: "var(--brand)" }}
+                  >
+                    <span>Next: {nextTopic.name}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/chemistry/solutions"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-sm hover:opacity-95"
+                    style={{ background: "var(--brand)" }}
+                  >
+                    <span>Complete Chapter Review</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </div>
             </div>
           </section>
         ) : (
-          /* Placeholder Notice Card for other topics (Topics 2–20) */
+          /* Placeholder Notice Card for topics whose content is pending */
           <section className="py-16 sm:py-24 bg-[#FAFAFA]">
             <div className="max-w-4xl mx-auto px-4 sm:px-6">
               <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#E5E5E5] shadow-sm text-center max-w-2xl mx-auto flex flex-col items-center gap-6">

@@ -13,6 +13,24 @@ import { ParticleSolutionSimulator } from "./interactive/particle-solution-simul
 import { SoluteSolventExplorer } from "./interactive/solute-solvent-explorer";
 import { TypesOfSolutionsMatrix } from "./interactive/types-of-solutions-matrix";
 import { SolutionColloidSuspensionComparison } from "./interactive/solution-colloid-suspension-comparison";
+import { ConcentrationCalculator } from "./interactive/group-a/concentration-calculator";
+import { HenrysLawGraph } from "./interactive/group-a/henrys-law-graph";
+import { VapourPressureSim } from "./interactive/group-a/vapour-pressure-sim";
+import { RaoultsLawGraph } from "./interactive/group-b/raoults-law-graph";
+import { IdealVsNonIdealComparator } from "./interactive/group-b/ideal-vs-non-ideal-comparator";
+import { DeviationCurvesGraph } from "./interactive/group-b/deviation-curves-graph";
+import { AzeotropePhaseDiagram } from "./interactive/group-b/azeotrope-phase-diagram";
+import { ColligativePropertiesHub } from "./interactive/group-c/colligative-properties-hub";
+import { RLVPCalculator } from "./interactive/group-c/rlvp-calculator";
+import { BoilingElevationCalculator } from "./interactive/group-c/boiling-elevation-calculator";
+import { FreezingDepressionCalculator } from "./interactive/group-c/freezing-depression-calculator";
+import { OsmosisSimulation } from "./interactive/group-d/osmosis-simulation";
+import { OsmoticPressureCalculator } from "./interactive/group-d/osmotic-pressure-calculator";
+import { ReverseOsmosisSimulator } from "./interactive/group-d/reverse-osmosis-simulator";
+import { AssociationDissociationVisualizer } from "./interactive/group-e/association-dissociation-visualizer";
+import { VantHoffCalculator } from "./interactive/group-e/vant-hoff-calculator";
+import { ColligativeApplicationsShowcase } from "./interactive/group-e/colligative-applications-showcase";
+import { NumericalPracticeWorkbench } from "./interactive/group-e/numerical-practice-workbench";
 
 interface TheoryBlockRendererProps {
   block: ContentBlockWithDetails;
@@ -180,6 +198,60 @@ export function TheoryBlockRenderer({ block }: TheoryBlockRendererProps) {
             {section.interactiveWidget ===
               "SOLUTION_COLLOID_SUSPENSION_COMPARISON" && (
               <SolutionColloidSuspensionComparison />
+            )}
+            {section.interactiveWidget === "CONCENTRATION_CALCULATOR" && (
+              <ConcentrationCalculator />
+            )}
+            {section.interactiveWidget === "HENRYS_LAW_GRAPH" && (
+              <HenrysLawGraph />
+            )}
+            {section.interactiveWidget === "VAPOUR_PRESSURE_SIM" && (
+              <VapourPressureSim />
+            )}
+            {section.interactiveWidget === "RAOULTS_LAW_GRAPH" && (
+              <RaoultsLawGraph />
+            )}
+            {section.interactiveWidget === "IDEAL_NON_IDEAL_COMPARATOR" && (
+              <IdealVsNonIdealComparator />
+            )}
+            {section.interactiveWidget === "DEVIATION_CURVES_GRAPH" && (
+              <DeviationCurvesGraph />
+            )}
+            {section.interactiveWidget === "AZEOTROPE_PHASE_DIAGRAM" && (
+              <AzeotropePhaseDiagram />
+            )}
+            {section.interactiveWidget === "COLLIGATIVE_PROPERTIES_HUB" && (
+              <ColligativePropertiesHub />
+            )}
+            {section.interactiveWidget === "RLVP_CALCULATOR" && (
+              <RLVPCalculator />
+            )}
+            {section.interactiveWidget === "BOILING_ELEVATION_CALCULATOR" && (
+              <BoilingElevationCalculator />
+            )}
+            {section.interactiveWidget === "FREEZING_DEPRESSION_CALCULATOR" && (
+              <FreezingDepressionCalculator />
+            )}
+            {section.interactiveWidget === "OSMOSIS_SIMULATION" && (
+              <OsmosisSimulation />
+            )}
+            {section.interactiveWidget === "OSMOTIC_PRESSURE_CALCULATOR" && (
+              <OsmoticPressureCalculator />
+            )}
+            {section.interactiveWidget === "REVERSE_OSMOSIS_SIMULATOR" && (
+              <ReverseOsmosisSimulator />
+            )}
+            {section.interactiveWidget === "ASSOCIATION_DISSOCIATION_VISUALIZER" && (
+              <AssociationDissociationVisualizer />
+            )}
+            {section.interactiveWidget === "VANT_HOFF_CALCULATOR" && (
+              <VantHoffCalculator />
+            )}
+            {section.interactiveWidget === "COLLIGATIVE_APPLICATIONS_SHOWCASE" && (
+              <ColligativeApplicationsShowcase />
+            )}
+            {section.interactiveWidget === "NUMERICAL_PRACTICE_WORKBENCH" && (
+              <NumericalPracticeWorkbench />
             )}
           </div>
         ))}

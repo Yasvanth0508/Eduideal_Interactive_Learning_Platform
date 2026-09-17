@@ -15,7 +15,7 @@ import {
   SOLUTIONS_CHAPTER,
   SOLUTIONS_TOPICS,
 } from "../../src/features/subjects/data";
-import { TOPIC_01_CONTENT_BLOCKS } from "../../src/features/content/data/topic-01-data";
+import { ALL_SOLUTIONS_CONTENT_BLOCKS } from "../../src/features/content/data";
 
 async function runSeed() {
   console.log("Seeding Chemistry subject...");
@@ -84,8 +84,8 @@ async function runSeed() {
       });
   }
 
-  console.log("Seeding Topic 1 content blocks and questions...");
-  for (const block of TOPIC_01_CONTENT_BLOCKS) {
+  console.log(`Seeding ${ALL_SOLUTIONS_CONTENT_BLOCKS.length} content blocks across all 20 topics...`);
+  for (const block of ALL_SOLUTIONS_CONTENT_BLOCKS) {
     await db
       .insert(contentBlocks)
       .values({
@@ -160,7 +160,7 @@ async function runSeed() {
     }
   }
 
-  console.log("Successfully seeded Solutions chapter, 20 topics, and Topic 1 content.");
+  console.log("Successfully seeded Solutions chapter, 20 topics, and all content blocks/questions for Topics 1–20.");
   process.exit(0);
 }
 

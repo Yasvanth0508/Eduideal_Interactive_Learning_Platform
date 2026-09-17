@@ -12,9 +12,8 @@ import {
   TheoryBlockContent,
 } from "./types";
 import {
-  TOPIC_01_ID,
-  TOPIC_01_CONTENT_BLOCKS,
-} from "./data/topic-01-data";
+  ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID,
+} from "./data";
 
 /**
  * Fetches all published content blocks and associated questions for a topic.
@@ -37,10 +36,7 @@ export async function getTopicContentBlocks(
       .orderBy(asc(contentBlocks.displayOrder));
 
     if (!blocks || blocks.length === 0) {
-      if (topicId === TOPIC_01_ID) {
-        return TOPIC_01_CONTENT_BLOCKS;
-      }
-      return [];
+      return ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID[topicId] || [];
     }
 
     // 2. Hydrate questions for QUESTIONS blocks
@@ -115,9 +111,6 @@ export async function getTopicContentBlocks(
     return results;
   } catch {
     // Graceful fallback for local development or during static site generation
-    if (topicId === TOPIC_01_ID) {
-      return TOPIC_01_CONTENT_BLOCKS;
-    }
-    return [];
+    return ALL_TOPIC_CONTENT_BLOCKS_BY_TOPIC_ID[topicId] || [];
   }
 }
