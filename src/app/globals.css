@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
 :root {
+  /* Brand Palette (EDUiDEAL / Learnova) */
+  --brand: #C0222E;
+  --brand-hover: #a61a24;
+  --brand-tint: rgba(192, 34, 46, 0.08);
+  --brand-border: rgba(192, 34, 46, 0.22);
+  --brand-glow: rgba(218, 67, 76, 0.35);
+  --brand-glow-subtle: rgba(218, 67, 76, 0.12);
+
+  /* Neutrals & Surfaces */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --surface: #FAFAFA;
+  --surface-hover: #f1f5f9;
+  --border-subtle: #E5E5E5;
+  --border-default: #e2e8f0;
+
+  /* Typography Colors */
+  --text-primary: #000000;
+  --text-secondary: #555555;
+  --text-muted: #64748B;
+  --text-dark: #0f172a;
+
+  /* Dark Theme / Footer */
+  --footer-bg: #020617;
+  --footer-card: #0f172a;
+  --footer-border: #1e293b;
+
+  /* Font Families */
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-border: var(--brand-border);
+  --color-surface: var(--surface);
+  --color-subtle: var(--border-subtle);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::selection {
+  background-color: #C0222E;
+  color: #ffffff;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
