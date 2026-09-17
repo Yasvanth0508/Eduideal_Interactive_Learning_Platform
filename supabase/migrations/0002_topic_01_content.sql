@@ -180,7 +180,7 @@ SET
 INSERT INTO questions (id, content_block_id, question_text, question_type, difficulty, marks, explanation, display_order)
 VALUES
 (
-  'q1000000-0000-0000-0000-000000000001',
+  'e1000000-0000-0000-0000-000000000201',
   'cb100000-0000-0000-0000-000000000105',
   'Which of the following is an example of a solid solution in which the solute is a gas?',
   'MCQ',
@@ -190,7 +190,7 @@ VALUES
   1
 ),
 (
-  'q1000000-0000-0000-0000-000000000002',
+  'e1000000-0000-0000-0000-000000000202',
   'cb100000-0000-0000-0000-000000000105',
   'If a mixture is prepared by mixing 75 mL of pure ethanol with 25 mL of pure water, which component acts as the solvent?',
   'MCQ',
@@ -200,7 +200,7 @@ VALUES
   2
 ),
 (
-  'q1000000-0000-0000-0000-000000000003',
+  'e1000000-0000-0000-0000-000000000203',
   'cb100000-0000-0000-0000-000000000105',
   'What is the maximum particle diameter for a dispersed substance to be classified as a true solution?',
   'MCQ',
@@ -210,7 +210,7 @@ VALUES
   3
 ),
 (
-  'q1000000-0000-0000-0000-000000000004',
+  'e1000000-0000-0000-0000-000000000204',
   'cb100000-0000-0000-0000-000000000105',
   'Component Identification: In Tincture of Iodine (used as a common antiseptic), identify the solute and the solvent.',
   'SHORT_ANSWER',
@@ -220,7 +220,7 @@ VALUES
   4
 ),
 (
-  'q1000000-0000-0000-0000-000000000005',
+  'e1000000-0000-0000-0000-000000000205',
   'cb100000-0000-0000-0000-000000000105',
   'Type & Phase Identification: Identify the physical state of the solute and the solvent in Dental Amalgam (or Sodium Amalgam).',
   'SHORT_ANSWER',
@@ -230,7 +230,7 @@ VALUES
   5
 ),
 (
-  'q1000000-0000-0000-0000-000000000006',
+  'e1000000-0000-0000-0000-000000000206',
   'cb100000-0000-0000-0000-000000000105',
   'Conceptual Reasoning: Why is an alloy such as Brass (approx. 30% Zn in 70% Cu) classified as a solution, even though both components are solid and cannot be separated by physical filtration?',
   'SHORT_ANSWER',
@@ -252,22 +252,22 @@ SET
 INSERT INTO question_options (id, question_id, option_text, is_correct, display_order)
 VALUES
 -- Options for Q1
-('opt-1-a', 'q1000000-0000-0000-0000-000000000001', 'Camphor in nitrogen gas', false, 1),
-('opt-1-b', 'q1000000-0000-0000-0000-000000000001', 'Solution of hydrogen in palladium', true, 2),
-('opt-1-c', 'q1000000-0000-0000-0000-000000000001', 'Chloroform mixed with nitrogen gas', false, 3),
-('opt-1-d', 'q1000000-0000-0000-0000-000000000001', 'Amalgam of mercury with sodium', false, 4),
+('e1000000-0000-0000-0000-000000000301', 'e1000000-0000-0000-0000-000000000201', 'Camphor in nitrogen gas', false, 1),
+('e1000000-0000-0000-0000-000000000302', 'e1000000-0000-0000-0000-000000000201', 'Solution of hydrogen in palladium', true, 2),
+('e1000000-0000-0000-0000-000000000303', 'e1000000-0000-0000-0000-000000000201', 'Chloroform mixed with nitrogen gas', false, 3),
+('e1000000-0000-0000-0000-000000000304', 'e1000000-0000-0000-0000-000000000201', 'Amalgam of mercury with sodium', false, 4),
 
 -- Options for Q2
-('opt-2-a', 'q1000000-0000-0000-0000-000000000002', 'Water, because water is always the universal solvent', false, 1),
-('opt-2-b', 'q1000000-0000-0000-0000-000000000002', 'Ethanol, because it is present in the larger volume', true, 2),
-('opt-2-c', 'q1000000-0000-0000-0000-000000000002', 'Both act as solvents simultaneously', false, 3),
-('opt-2-d', 'q1000000-0000-0000-0000-000000000002', 'Neither, because they form an azeotrope', false, 4),
+('e1000000-0000-0000-0000-000000000305', 'e1000000-0000-0000-0000-000000000202', 'Water, because water is always the universal solvent', false, 1),
+('e1000000-0000-0000-0000-000000000306', 'e1000000-0000-0000-0000-000000000202', 'Ethanol, because it is present in the larger volume', true, 2),
+('e1000000-0000-0000-0000-000000000307', 'e1000000-0000-0000-0000-000000000202', 'Both act as solvents simultaneously', false, 3),
+('e1000000-0000-0000-0000-000000000308', 'e1000000-0000-0000-0000-000000000202', 'Neither, because they form an azeotrope', false, 4),
 
 -- Options for Q3
-('opt-3-a', 'q1000000-0000-0000-0000-000000000003', 'Less than 1 nm (10⁻⁹ m)', true, 1),
-('opt-3-b', 'q1000000-0000-0000-0000-000000000003', 'Between 1 nm and 1000 nm', false, 2),
-('opt-3-c', 'q1000000-0000-0000-0000-000000000003', 'Greater than 1000 nm', false, 3),
-('opt-3-d', 'q1000000-0000-0000-0000-000000000003', 'Greater than 1 μm', false, 4)
+('e1000000-0000-0000-0000-000000000309', 'e1000000-0000-0000-0000-000000000203', 'Less than 1 nm (10⁻⁹ m)', true, 1),
+('e1000000-0000-0000-0000-000000000310', 'e1000000-0000-0000-0000-000000000203', 'Between 1 nm and 1000 nm', false, 2),
+('e1000000-0000-0000-0000-000000000311', 'e1000000-0000-0000-0000-000000000203', 'Greater than 1000 nm', false, 3),
+('e1000000-0000-0000-0000-000000000312', 'e1000000-0000-0000-0000-000000000203', 'Greater than 1 μm', false, 4)
 ON CONFLICT (id) DO UPDATE
 SET
   option_text = EXCLUDED.option_text,

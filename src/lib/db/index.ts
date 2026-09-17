@@ -2,6 +2,15 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
+if (!process.env.DATABASE_URL) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("dotenv").config({ path: ".env.local" });
+  } catch {
+    // Ignored in environments where dotenv is not needed
+  }
+}
+
 const connectionString = process.env.DATABASE_URL || "";
 
 /**

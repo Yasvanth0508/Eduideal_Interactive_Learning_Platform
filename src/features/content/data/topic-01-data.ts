@@ -199,7 +199,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
     questions: [
       // 3 MCQs
       {
-        id: "q1000000-0000-0000-0000-000000000001",
+        id: "e1000000-0000-0000-0000-000000000201",
         questionText:
           "Which of the following is an example of a solid solution in which the solute is a gas?",
         questionType: "MCQ",
@@ -210,25 +210,25 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
           "In a solution of hydrogen in palladium, hydrogen gas (H₂) is adsorbed/occluded inside the crystal lattice of solid palladium (Pd). Here, the solute is a gas and the solvent is a solid.",
         options: [
           {
-            id: "opt-1-a",
+            id: "e1000000-0000-0000-0000-000000000301",
             optionText: "Camphor in nitrogen gas",
             isCorrect: false,
             displayOrder: 1,
           },
           {
-            id: "opt-1-b",
+            id: "e1000000-0000-0000-0000-000000000302",
             optionText: "Solution of hydrogen in palladium",
             isCorrect: true,
             displayOrder: 2,
           },
           {
-            id: "opt-1-c",
+            id: "e1000000-0000-0000-0000-000000000303",
             optionText: "Chloroform mixed with nitrogen gas",
             isCorrect: false,
             displayOrder: 3,
           },
           {
-            id: "opt-1-d",
+            id: "e1000000-0000-0000-0000-000000000304",
             optionText: "Amalgam of mercury with sodium",
             isCorrect: false,
             displayOrder: 4,
@@ -236,7 +236,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
         ],
       },
       {
-        id: "q1000000-0000-0000-0000-000000000002",
+        id: "e1000000-0000-0000-0000-000000000202",
         questionText:
           "If a mixture is prepared by mixing 75 mL of pure ethanol with 25 mL of pure water, which component acts as the solvent?",
         questionType: "MCQ",
@@ -247,25 +247,25 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
           "When both components share the same physical state (both are liquids), the component present in the largest quantity acts as the solvent. Here, ethanol constitutes 75% of the mixture, so ethanol is the solvent and water is the solute.",
         options: [
           {
-            id: "opt-2-a",
+            id: "e1000000-0000-0000-0000-000000000305",
             optionText: "Water, because water is always the universal solvent",
             isCorrect: false,
             displayOrder: 1,
           },
           {
-            id: "opt-2-b",
+            id: "e1000000-0000-0000-0000-000000000306",
             optionText: "Ethanol, because it is present in the larger volume",
             isCorrect: true,
             displayOrder: 2,
           },
           {
-            id: "opt-2-c",
+            id: "e1000000-0000-0000-0000-000000000307",
             optionText: "Both act as solvents simultaneously",
             isCorrect: false,
             displayOrder: 3,
           },
           {
-            id: "opt-2-d",
+            id: "e1000000-0000-0000-0000-000000000308",
             optionText: "Neither, because they form an azeotrope",
             isCorrect: false,
             displayOrder: 4,
@@ -273,7 +273,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
         ],
       },
       {
-        id: "q1000000-0000-0000-0000-000000000003",
+        id: "e1000000-0000-0000-0000-000000000203",
         questionText:
           "What is the maximum particle diameter for a dispersed substance to be classified as a true solution?",
         questionType: "MCQ",
@@ -284,25 +284,25 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
           "In a true solution, solute particles are dispersed at atomic or molecular levels with diameters less than 1 nm (10⁻⁹ m or 10 Å). Particles between 1 nm and 1000 nm form colloids, and particles > 1000 nm form suspensions.",
         options: [
           {
-            id: "opt-3-a",
+            id: "e1000000-0000-0000-0000-000000000309",
             optionText: "Less than 1 nm (10⁻⁹ m)",
             isCorrect: true,
             displayOrder: 1,
           },
           {
-            id: "opt-3-b",
+            id: "e1000000-0000-0000-0000-000000000310",
             optionText: "Between 1 nm and 1000 nm",
             isCorrect: false,
             displayOrder: 2,
           },
           {
-            id: "opt-3-c",
+            id: "e1000000-0000-0000-0000-000000000311",
             optionText: "Greater than 1000 nm",
             isCorrect: false,
             displayOrder: 3,
           },
           {
-            id: "opt-3-d",
+            id: "e1000000-0000-0000-0000-000000000312",
             optionText: "Greater than 1 μm",
             isCorrect: false,
             displayOrder: 4,
@@ -311,7 +311,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
       },
       // 2 Identification Questions
       {
-        id: "q1000000-0000-0000-0000-000000000004",
+        id: "e1000000-0000-0000-0000-000000000204",
         questionText:
           "Component Identification: In Tincture of Iodine (used as a common antiseptic), identify the solute and the solvent.",
         questionType: "SHORT_ANSWER",
@@ -324,7 +324,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
           "Tincture of iodine contains 2–3% elemental iodine (I₂) dissolved in an alcohol-water mixture. Since iodine is dissolved in a much larger volume of alcohol, Iodine is the solid Solute and Ethyl Alcohol is the liquid Solvent.",
       },
       {
-        id: "q1000000-0000-0000-0000-000000000005",
+        id: "e1000000-0000-0000-0000-000000000205",
         questionText:
           "Type & Phase Identification: Identify the physical state of the solute and the solvent in Dental Amalgam (or Sodium Amalgam).",
         questionType: "SHORT_ANSWER",
@@ -338,7 +338,7 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
       },
       // 1 Conceptual Question
       {
-        id: "q1000000-0000-0000-0000-000000000006",
+        id: "e1000000-0000-0000-0000-000000000206",
         questionText:
           "Conceptual Reasoning: Why is an alloy such as Brass (approx. 30% Zn in 70% Cu) classified as a solution, even though both components are solid and cannot be separated by physical filtration?",
         questionType: "SHORT_ANSWER",
