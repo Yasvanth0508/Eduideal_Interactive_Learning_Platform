@@ -51,6 +51,21 @@ export const TOPIC_01_CONTENT_BLOCKS: ContentBlockWithDetails[] = [
           },
           interactiveWidget: "PARTICLE_SIMULATOR",
         },
+        {
+          id: "sec-3d-solvation",
+          badge: "3D MOLECULAR VISUALIZATION",
+          heading: "3D Molecular Solvation: Hydration Shells",
+          paragraphs: [
+            "At the microscopic level, when an ionic crystal like NaCl dissolves in water, polar water molecules reorient their electric dipoles to surround the liberated ions.",
+            "Oxygen atoms (carrying partial negative charge δ⁻) orient inward around Na⁺ cations, while hydrogen atoms (carrying partial positive charge δ⁺) orient inward around Cl⁻ anions.",
+          ],
+          callout: {
+            type: "tip",
+            title: "Interactive 3D Tip",
+            text: "Rotate the 3D model to observe the octahedral coordination geometry of the hydration shells that stabilize the ions in solution.",
+          },
+          interactiveWidget: "HYDRATION_SHELL_3D",
+        },
       ],
     },
   },

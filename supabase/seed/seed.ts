@@ -11,6 +11,7 @@ import {
   questionOptions,
   formulaConfigs,
   formulaVariables,
+  threeDAssets,
 } from "../../src/lib/db/schema";
 import {
   CHEMISTRY_SUBJECT,
@@ -218,7 +219,85 @@ async function runSeed() {
     }
   }
 
-  console.log("Successfully seeded Solutions chapter, 20 topics, content blocks, questions, and formula configs/variables.");
+  console.log("Seeding 3D assets for Topics 1–5...");
+  const THREE_D_SEEDS = [
+    {
+      id: "3d000000-0000-0000-0000-000000000101",
+      contentBlockId: "cb100000-0000-0000-0000-000000000101",
+      modelName: "Hydration Shell (Na+ and Cl- Solvation)",
+      format: "THREE_JS_PROCEDURAL",
+      simulationConfig: {
+        component: "HYDRATION_SHELL_3D",
+        species: ["Na+", "Cl-", "H2O"],
+        coordinationNumber: 6,
+      },
+    },
+    {
+      id: "3d000000-0000-0000-0000-000000000102",
+      contentBlockId: "cb100000-0000-0000-0000-000000000201",
+      modelName: "Brass Substitutional Alloy FCC Lattice",
+      format: "THREE_JS_PROCEDURAL",
+      simulationConfig: {
+        component: "BRASS_LATTICE_3D",
+        latticeType: "FCC",
+        ratio: "70% Cu, 30% Zn",
+      },
+    },
+    {
+      id: "3d000000-0000-0000-0000-000000000103",
+      contentBlockId: "cb100000-0000-0000-0000-000000000301",
+      modelName: "Volumetric Flask 1.000 L Concentration",
+      format: "THREE_JS_PROCEDURAL",
+      simulationConfig: {
+        component: "VOLUMETRIC_SOLUTION_3D",
+        volumeL: 1.0,
+        molarityRange: [0.2, 2.0],
+      },
+    },
+    {
+      id: "3d000000-0000-0000-0000-000000000104",
+      contentBlockId: "cb100000-0000-0000-0000-000000000401",
+      modelName: "High Pressure Gas Solvation Chamber",
+      format: "THREE_JS_PROCEDURAL",
+      simulationConfig: {
+        component: "HENRYS_LAW_CHAMBER_3D",
+        law: "Henry's Law (p = KH * x)",
+        pressureRangeBar: [1.0, 5.0],
+      },
+    },
+    {
+      id: "3d000000-0000-0000-0000-000000000105",
+      contentBlockId: "cb100000-0000-0000-0000-000000000501",
+      modelName: "Dynamic Evaporation Equilibrium Chamber",
+      format: "THREE_JS_PROCEDURAL",
+      simulationConfig: {
+        component: "EVAPORATION_EQUILIBRIUM_3D",
+        phenomenon: "Vapour Pressure & Surface Blocking",
+      },
+    },
+  ];
+
+  for (const asset of THREE_D_SEEDS) {
+    await db
+      .insert(threeDAssets)
+      .values({
+        id: asset.id,
+        contentBlockId: asset.contentBlockId,
+        modelName: asset.modelName,
+        format: asset.format,
+        simulationConfig: asset.simulationConfig,
+      })
+      .onConflictDoUpdate({
+        target: threeDAssets.id,
+        set: {
+          modelName: asset.modelName,
+          format: asset.format,
+          simulationConfig: asset.simulationConfig,
+        },
+      });
+  }
+
+  console.log("Successfully seeded Solutions chapter, 20 topics, content blocks, questions, formula configs/variables, and 3D assets.");
   process.exit(0);
 }
 

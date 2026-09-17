@@ -31,6 +31,13 @@ import { AssociationDissociationVisualizer } from "./interactive/group-e/associa
 import { VantHoffCalculator } from "./interactive/group-e/vant-hoff-calculator";
 import { ColligativeApplicationsShowcase } from "./interactive/group-e/colligative-applications-showcase";
 import { NumericalPracticeWorkbench } from "./interactive/group-e/numerical-practice-workbench";
+import {
+  HydrationShell3D,
+  BrassLattice3D,
+  VolumetricSolution3D,
+  HenrysLawChamber3D,
+  EvaporationEquilibrium3D,
+} from "./three-d";
 
 interface TheoryBlockRendererProps {
   block: ContentBlockWithDetails;
@@ -252,6 +259,21 @@ export function TheoryBlockRenderer({ block }: TheoryBlockRendererProps) {
             )}
             {section.interactiveWidget === "NUMERICAL_PRACTICE_WORKBENCH" && (
               <NumericalPracticeWorkbench />
+            )}
+            {section.interactiveWidget === "HYDRATION_SHELL_3D" && (
+              <HydrationShell3D />
+            )}
+            {section.interactiveWidget === "BRASS_LATTICE_3D" && (
+              <BrassLattice3D />
+            )}
+            {section.interactiveWidget === "VOLUMETRIC_SOLUTION_3D" && (
+              <VolumetricSolution3D />
+            )}
+            {section.interactiveWidget === "HENRYS_LAW_CHAMBER_3D" && (
+              <HenrysLawChamber3D />
+            )}
+            {section.interactiveWidget === "EVAPORATION_EQUILIBRIUM_3D" && (
+              <EvaporationEquilibrium3D />
             )}
           </div>
         ))}
