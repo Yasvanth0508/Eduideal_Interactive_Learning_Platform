@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -205,6 +206,7 @@ const BRANCHES = [
 ];
 
 export default function ChemistryDemoPage() {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -341,18 +343,14 @@ export default function ChemistryDemoPage() {
                 <div className="font-bold text-sm text-black">
                   Chapter 1: Solutions
                 </div>
-                <button
-                  onClick={() =>
-                    showToast(
-                      "Lesson 1 selected! Interactive lesson content will be configured in the next phase."
-                    )
-                  }
+                <Link
+                  href="/chemistry/solutions"
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 cursor-pointer"
                   style={{ background: "var(--brand)" }}
                 >
                   <span>Start Solutions Lesson</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -407,9 +405,7 @@ export default function ChemistryDemoPage() {
 
               const handleCardClick = () => {
                 if (isActive) {
-                  showToast(
-                    "Lesson 1 selected! Interactive lesson content will be configured in the next phase."
-                  );
+                  router.push("/chemistry/solutions");
                 } else {
                   showToast(
                     `${lesson.title} — Content is being prepared for upcoming release!`
@@ -499,19 +495,15 @@ export default function ChemistryDemoPage() {
                   {/* Card Bottom CTA */}
                   <div className="pt-4 border-t border-[#E5E5E5] mt-auto">
                     {isActive ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showToast(
-                            "Lesson 1 selected! Interactive lesson content will be configured in the next phase."
-                          );
-                        }}
+                      <Link
+                        href="/chemistry/solutions"
+                        onClick={(e) => e.stopPropagation()}
                         className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 cursor-pointer"
                         style={{ background: "var(--brand)" }}
                       >
                         <span>Start Learning</span>
                         <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      </Link>
                     ) : (
                       <button
                         disabled
