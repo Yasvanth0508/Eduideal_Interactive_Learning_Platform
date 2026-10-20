@@ -62,7 +62,7 @@ export async function TopicDetailView({
     <div className="min-h-screen bg-white text-black antialiased font-sans flex flex-col justify-between selection:bg-[#C0222E] selection:text-white">
       {/* Top Navigation Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -85,7 +85,7 @@ export async function TopicDetailView({
       </header>
 
       {/* Main Container with Sidebar + Content */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row">
+      <div className="flex-1 w-full flex flex-col lg:flex-row">
         {/* Sidebar */}
         <TopicSidebar
           subjectSlug={subjectSlug}
@@ -265,7 +265,7 @@ export async function TopicDetailView({
 
       {/* Academy Footer */}
       <footer className="border-t border-[#E5E5E5] bg-white z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div className="w-full px-4 sm:px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-3">

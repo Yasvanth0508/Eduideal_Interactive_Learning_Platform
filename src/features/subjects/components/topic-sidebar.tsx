@@ -79,7 +79,7 @@ export function TopicSidebar({
       {/* Sidebar Container */}
       <aside
         className={`
-          fixed lg:sticky top-16 z-40 h-[calc(100vh-4rem)] bg-white border-r border-[#E5E5E5] flex flex-col transition-all duration-300 ease-in-out
+          fixed lg:sticky top-16 z-40 h-[calc(100vh-4rem)] bg-white border-r border-[#E5E5E5] flex flex-col transition-all duration-300 ease-in-out shrink-0
           ${isMobileOpen ? "translate-x-0 w-80 shadow-2xl" : "-translate-x-full lg:translate-x-0"}
           ${isCollapsed ? "lg:w-16" : "lg:w-80"}
           left-0
