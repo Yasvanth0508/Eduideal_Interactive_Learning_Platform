@@ -37,8 +37,8 @@ export function LoginForm({ next }: LoginFormProps) {
         {next && <input type="hidden" name="next" value={next} />}
 
         <div>
-          <label className="block text-xs font-mono font-bold text-black mb-1.5 uppercase tracking-wider">
-            Register Number / Email
+          <label className="block text-sm font-medium text-black mb-1.5">
+            Register number or email
           </label>
           <div className="relative">
             <input
@@ -47,14 +47,14 @@ export function LoginForm({ next }: LoginFormProps) {
               required
               autoComplete="username"
               placeholder="Register number (students) or email (staff)"
-              className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all font-mono text-sm shadow-xs"
+              className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all text-sm shadow-xs"
             />
             <UserCheck className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-mono font-bold text-black mb-1.5 uppercase tracking-wider">
+          <label className="block text-sm font-medium text-black mb-1.5">
             Password
           </label>
           <div className="relative">

@@ -412,7 +412,7 @@ export function SubjectView({
                           {lesson.category}
                         </span>
 
-                        <span className="text-xs font-mono font-semibold text-[#555555]">
+                        <span className="text-xs font-semibold text-[#555555] tabular-nums">
                           Chapter {lesson.lessonNumber}
                         </span>
                       </div>
@@ -447,7 +447,7 @@ export function SubjectView({
                       </div>
                     </div>
 
-                    <p className="text-xs font-semibold text-[#555555] mb-2 font-mono">
+                    <p className="text-xs font-semibold text-[#555555] mb-2">
                       {lesson.subtitle}
                     </p>
 
@@ -538,7 +538,7 @@ export function SubjectView({
             <span>
               &copy; 2026 Learnova &bull; EDUiDEAL ACADEMY. All rights reserved.
             </span>
-            <div className="flex items-center gap-4 font-mono">
+            <div className="flex items-center gap-4">
               <Link href="/" className="hover:text-[#C0222E] transition-colors">
                 Dashboard Overview
               </Link>

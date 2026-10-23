@@ -63,7 +63,7 @@ export function TopicSidebar({
           </span>
         </button>
 
-        <span className="text-xs font-mono font-bold text-[#555555]">
+        <span className="text-xs font-bold text-[#555555] tabular-nums">
           {progressPercent}% Complete
         </span>
       </div>
@@ -126,7 +126,7 @@ export function TopicSidebar({
           <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#E5E5E5]">
             <div className="flex items-center justify-between text-[11px] font-semibold text-[#555555] mb-1.5">
               <span>Chapter Progress</span>
-              <span className="font-mono text-[#C0222E]">
+              <span className="text-[#C0222E] tabular-nums">
                 {currentIndex + 1} of {topics.length} topics
               </span>
             </div>
@@ -184,7 +184,7 @@ export function TopicSidebar({
                 {/* Topic Index Number Badge */}
                 <span
                   className={`
-                    w-7 h-7 rounded-lg flex items-center justify-center font-mono text-[11px] font-bold flex-shrink-0 transition-colors
+                    w-7 h-7 rounded-lg flex items-center justify-center tabular-nums text-[11px] font-bold flex-shrink-0 transition-colors
                     ${
                       isActive
                         ? "bg-[#C0222E] text-white"
@@ -244,7 +244,7 @@ export function TopicSidebar({
               <Layers className="w-3.5 h-3.5 text-[#C0222E]" />
               <span>Chapter Overview</span>
             </Link>
-            <span className="font-mono text-[10px]">{topics.length} Topics</span>
+            <span className="tabular-nums text-[10px]">{topics.length} Topics</span>
           </div>
         )}
       </aside>

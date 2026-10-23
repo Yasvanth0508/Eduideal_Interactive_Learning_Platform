@@ -62,7 +62,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white font-mono">
+      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white">
         EDUiDEAL Academy — Learnova Digitalized Learning World &copy; 2026
       </footer>
     </div>

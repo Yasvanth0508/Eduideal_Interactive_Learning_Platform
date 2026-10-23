@@ -68,7 +68,7 @@ export default async function DashboardPage() {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
+              className="text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
               style={{
                 background: "var(--brand-tint)",
                 color: "var(--brand)",
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
               <Sparkles className="w-3.5 h-3.5" />
               <span>STUDENT DASHBOARD</span>
             </span>
-            <span className="text-xs font-mono font-semibold text-[#555555] sm:hidden">
+            <span className="text-xs font-semibold text-[#555555] sm:hidden">
               {user.branchName}
             </span>
           </div>
@@ -110,7 +110,7 @@ export default async function DashboardPage() {
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Enrolled
                     </span>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#C0222E] group-hover:translate-x-1 transition-all" />
@@ -133,7 +133,7 @@ export default async function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white font-mono">
+      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white">
         EDUiDEAL Academy — Learnova Digitalized Learning World &copy; 2026
       </footer>
     </div>

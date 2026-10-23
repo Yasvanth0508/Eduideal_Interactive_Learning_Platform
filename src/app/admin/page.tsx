@@ -1,120 +1,231 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { Users, ShieldCheck, MapPin, Sparkles, User } from "lucide-react";
-import { eq, and, count } from "drizzle-orm";
+import { Search } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { LogoutButton } from "@/features/auth/components/logout-button";
+import { listStudents } from "@/features/admin/queries";
+import { PageHeader } from "@/features/admin/components/page-header";
+import { StatusBadge } from "@/features/admin/components/status-badge";
+import { EmptyState } from "@/features/admin/components/empty-state";
 
-export const metadata: Metadata = {
-  title: "Admin Portal | Learnova — EDUiDEAL Academy",
-  description:
-    "Administrator control center for student management and curriculum assignments.",
-};
+interface AdminPageProps {
+  searchParams: Promise<{
+    q?: string;
+    status?: string;
+    page?: string;
+  }>;
+}
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const user = await requireRole("ADMIN");
+  const params = await searchParams;
 
-  const [studentCountResult] = await db
-    .select({ count: count() })
-    .from(users)
-    .where(
-      and(
-        eq(users.role, "STUDENT"),
-        eq(users.branchId, user.branchId)
-      )
-    );
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const rawStatus = typeof params.status === "string" ? params.status : "all";
+  const status =
+    rawStatus === "active" || rawStatus === "inactive" ? rawStatus : "all";
+  const page = Math.max(1, parseInt(params.page || "1", 10) || 1);
 
-  const studentCount = Number(studentCountResult?.count ?? 0);
+  const { rows, totalCount, pageSize, totalPages } = await listStudents({
+    branchId: user.branchId,
+    q,
+    status,
+    page,
+  });
+
+  const studentWord = totalCount === 1 ? "student" : "students";
+  const startItem = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, totalCount);
+
+  function buildQueryString(targetPage: number) {
+    const qp = new URLSearchParams();
+    if (q) qp.set("q", q);
+    if (status !== "all") qp.set("status", status);
+    if (targetPage > 1) qp.set("page", targetPage.toString());
+    const str = qp.toString();
+    return str ? `?${str}` : "";
+  }
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col justify-between selection:bg-[#C0222E] selection:text-white font-sans antialiased">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <Link href="/admin" className="flex items-center gap-3 group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/eduideal-logo-BUtjWTvV.png"
-              alt="EDUiDEAL Academy Logo"
-              className="h-8 sm:h-9 w-auto object-contain block group-hover:scale-105 transition-transform"
-            />
+    <div className="space-y-6">
+      <PageHeader
+        title="Students"
+        description={`${user.branchName} branch - ${totalCount} ${studentWord}`}
+        action={
+          <Link
+            href="/admin/students/new"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-md text-sm font-medium bg-[#C0222E] text-white hover:bg-[#a61a24] active:bg-[#91161f] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C0222E]/20"
+          >
+            Add student
           </Link>
+        }
+      />
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5] text-xs">
-              <User className="w-3.5 h-3.5 text-[#C0222E]" />
-              <span className="font-semibold text-black">{user.name}</span>
-              <span className="text-[#E5E5E5]">|</span>
-              <span className="flex items-center gap-1 text-[#555555]">
-                <MapPin className="w-3 h-3 text-slate-400" />
-                {user.branchName}
-              </span>
-            </div>
-            <LogoutButton />
-          </div>
+      {/* Filter and Search Form */}
+      <form
+        method="GET"
+        action="/admin"
+        className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+      >
+        <div className="relative flex-1">
+          <input
+            type="text"
+            name="q"
+            defaultValue={q}
+            placeholder="Search by name, register number or email"
+            className="w-full h-10 pl-9 pr-3 bg-white border border-[#E5E5E5] rounded-md text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-colors duration-150"
+          />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-10 flex-1">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
-              style={{
-                background: "var(--brand-tint)",
-                color: "var(--brand)",
-                border: "1px solid var(--brand-border)",
-              }}
+        <div className="flex items-center gap-3">
+          <select
+            name="status"
+            defaultValue={status}
+            className="h-10 px-3 bg-white border border-[#E5E5E5] rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-colors duration-150 cursor-pointer"
+          >
+            <option value="all">All status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
+          <button
+            type="submit"
+            className="h-10 px-4 rounded-md text-sm font-medium bg-white border border-[#E5E5E5] text-slate-700 hover:bg-slate-50 transition-colors duration-150 cursor-pointer"
+          >
+            Filter
+          </button>
+
+          {(q || status !== "all") && (
+            <Link
+              href="/admin"
+              className="h-10 px-3 flex items-center text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>BRANCH ADMINISTRATION</span>
-            </span>
+              Clear
+            </Link>
+          )}
+        </div>
+      </form>
+
+      {/* Students Table or Empty State */}
+      {rows.length === 0 ? (
+        <EmptyState
+          message="No students found."
+          action={
+            q || status !== "all" ? (
+              <Link
+                href="/admin"
+                className="text-xs font-medium text-slate-600 hover:text-slate-900 underline"
+              >
+                Clear filters
+              </Link>
+            ) : (
+              <Link
+                href="/admin/students/new"
+                className="inline-flex items-center justify-center h-9 px-4 rounded-md text-sm font-medium bg-[#C0222E] text-white hover:bg-[#a61a24] transition-colors duration-150"
+              >
+                Add student
+              </Link>
+            )
+          }
+        />
+      ) : (
+        <div className="bg-white border border-[#E5E5E5] rounded-lg shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#E5E5E5] bg-slate-50/50">
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500">
+                    Register number
+                  </th>
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500">
+                    Name
+                  </th>
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500">
+                    Email
+                  </th>
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500">
+                    Subjects
+                  </th>
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500">
+                    Status
+                  </th>
+                  <th className="py-3 px-4 text-xs font-medium text-slate-500 text-right">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E5E5E5] text-sm">
+                {rows.map((student) => (
+                  <tr
+                    key={student.id}
+                    className="h-12 hover:bg-slate-50/50 transition-colors duration-150"
+                  >
+                    <td className="py-2.5 px-4 font-medium text-slate-900 tabular-nums">
+                      {student.registerNumber || "—"}
+                    </td>
+                    <td className="py-2.5 px-4 text-slate-900">
+                      {student.name}
+                    </td>
+                    <td className="py-2.5 px-4 text-slate-600">
+                      {student.email}
+                    </td>
+                    <td className="py-2.5 px-4 text-slate-600 max-w-xs truncate">
+                      {student.activeSubjectNames.length > 0
+                        ? student.activeSubjectNames.join(", ")
+                        : "None"}
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <StatusBadge active={student.isActive} />
+                    </td>
+                    <td className="py-2.5 px-4 text-right">
+                      <Link
+                        href={`/admin/students/${student.id}`}
+                        className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors duration-150"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black">
-            Welcome, {user.name}
-          </h1>
-          <p className="text-sm text-[#555555] mt-1">
-            {user.branchName} branch
-          </p>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="p-6 rounded-3xl bg-white border border-[#E5E5E5] shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#555555]">
-                Branch Students
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 text-[#C0222E] flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </div>
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#E5E5E5] text-xs text-slate-500">
+            <div>
+              Showing {startItem}-{endItem} of {totalCount}
             </div>
-            <div className="text-3xl font-black text-black">
-              {studentCount}
+
+            <div className="flex items-center gap-2">
+              {page <= 1 ? (
+                <span className="inline-flex items-center justify-center h-8 px-3 rounded-md border border-[#E5E5E5] text-slate-300 cursor-not-allowed">
+                  Previous
+                </span>
+              ) : (
+                <Link
+                  href={`/admin${buildQueryString(page - 1)}`}
+                  className="inline-flex items-center justify-center h-8 px-3 rounded-md border border-[#E5E5E5] text-slate-700 hover:bg-slate-50 transition-colors duration-150"
+                >
+                  Previous
+                </Link>
+              )}
+
+              {page >= totalPages ? (
+                <span className="inline-flex items-center justify-center h-8 px-3 rounded-md border border-[#E5E5E5] text-slate-300 cursor-not-allowed">
+                  Next
+                </span>
+              ) : (
+                <Link
+                  href={`/admin${buildQueryString(page + 1)}`}
+                  className="inline-flex items-center justify-center h-8 px-3 rounded-md border border-[#E5E5E5] text-slate-700 hover:bg-slate-50 transition-colors duration-150"
+                >
+                  Next
+                </Link>
+              )}
             </div>
-            <p className="text-xs text-[#555555] mt-1.5">
-              Enrolled students registered under {user.branchName}
-            </p>
           </div>
         </div>
-
-        {/* Placeholder Information Box */}
-        <div className="p-8 rounded-3xl bg-[#FAFAFA] border border-[#E5E5E5] text-center max-w-xl mx-auto my-6 shadow-xs">
-          <Sparkles className="w-6 h-6 text-[#C0222E] mx-auto mb-3" />
-          <h2 className="text-base font-bold text-black mb-1">Administration Portal</h2>
-          <p className="text-xs sm:text-sm text-[#555555]">
-            Student management is coming next.
-          </p>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white font-mono">
-        EDUiDEAL Academy — Learnova Digitalized Learning World &copy; 2026
-      </footer>
+      )}
     </div>
   );
 }
