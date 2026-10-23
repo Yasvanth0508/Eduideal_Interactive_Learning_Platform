@@ -33,7 +33,30 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Refresh auth token
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  // Protect /dashboard and /admin routes
+  if (
+    !user &&
+    (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"))
+  ) {
+    const redirectUrl = new URL("/login", request.url);
+    const originalPathAndQuery = `${pathname}${request.nextUrl.search}`;
+    redirectUrl.searchParams.set("next", originalPathAndQuery);
+
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+
+    // Copy cookies from supabaseResponse onto redirectResponse so refreshed session cookies are not lost
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+    });
+
+    return redirectResponse;
+  }
 
   return supabaseResponse;
 }

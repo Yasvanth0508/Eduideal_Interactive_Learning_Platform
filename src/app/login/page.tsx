@@ -1,45 +1,36 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, UserCheck, Key, ShieldCheck } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { getCurrentUser } from "@/lib/auth/session";
+import { LoginForm } from "./login-form";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [registerNumber, setRegisterNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const metadata: Metadata = {
+  title: "Sign In | Learnova — EDUiDEAL Academy",
+  description:
+    "Sign in with your register number or administrator email to access personalized learning.",
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!registerNumber.trim() || !password.trim()) {
-      setError("Please enter both Register Number and Password.");
-      return;
+interface LoginPageProps {
+  searchParams?: Promise<{
+    next?: string;
+  }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const user = await getCurrentUser();
+
+  if (user && user.isActive && user.branchIsActive) {
+    if (user.role === "ADMIN") {
+      redirect("/admin");
+    } else {
+      redirect("/dashboard");
     }
+  }
 
-    setIsLoading(true);
-    setError(null);
-
-    // Simulate login verification or connect to auth endpoint
-    setTimeout(() => {
-      setIsLoading(false);
-      // For demo / initial admin credentials
-      if (registerNumber.trim() === "212224040265" && password.trim() === "htna2006") {
-        router.push("/chemistry");
-      } else {
-        // Successful mock sign in for other registered users
-        router.push("/chemistry");
-      }
-    }, 600);
-  };
-
-  const handleFillAdmin = () => {
-    setRegisterNumber("212224040265");
-    setPassword("htna2006");
-    setError(null);
-  };
+  const resolvedParams = searchParams ? await searchParams : {};
+  const next =
+    typeof resolvedParams.next === "string" ? resolvedParams.next : undefined;
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between selection:bg-[#C0222E] selection:text-white font-sans antialiased">
@@ -67,92 +58,7 @@ export default function LoginPage() {
 
       {/* Main Login Card */}
       <main className="max-w-md w-full mx-auto px-4 py-12">
-        <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-xl shadow-slate-200/50">
-          <div className="text-center mb-8 flex flex-col items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/eduideal-logo-BUtjWTvV.png"
-              alt="EDUiDEAL Academy Logo"
-              className="h-12 sm:h-14 w-auto object-contain mx-auto"
-            />
-          </div>
-
-          {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5">
-              <span className="font-bold">⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-mono font-bold text-black mb-1.5 uppercase tracking-wider">
-                Register Number
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 212224040265 or 00000001"
-                  value={registerNumber}
-                  onChange={(e) => setRegisterNumber(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all font-mono text-sm shadow-xs"
-                />
-                <UserCheck className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono font-bold text-black mb-1.5 uppercase tracking-wider">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all text-sm shadow-xs"
-                />
-                <Key className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 rounded-xl text-white font-extrabold text-sm tracking-wide shadow-md transition-all flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer"
-              style={{
-                background: "var(--brand)",
-                boxShadow: "0 4px 14px rgba(218,67,76,0.3)",
-              }}
-            >
-              {isLoading ? (
-                <span>Authenticating...</span>
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#555555] mb-3 text-center font-medium">
-              Initial Administrator Credentials Helper:
-            </p>
-            <button
-              type="button"
-              onClick={handleFillAdmin}
-              className="w-full py-2.5 px-3 rounded-xl bg-rose-50/60 hover:bg-rose-100/80 border border-rose-200 text-[#C0222E] text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#C0222E]" />
-              <span>Fill Admin: 212224040265 / htna2006</span>
-            </button>
-          </div>
-        </div>
+        <LoginForm next={next} />
       </main>
 
       {/* Footer */}
