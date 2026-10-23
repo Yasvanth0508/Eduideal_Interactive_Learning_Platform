@@ -33,36 +33,38 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     typeof resolvedParams.next === "string" ? resolvedParams.next : undefined;
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col justify-between selection:bg-[#C0222E] selection:text-white font-sans antialiased">
+    <div className="flex min-h-screen flex-col bg-neutral-100 font-sans text-neutral-900 antialiased selection:bg-[var(--brand)] selection:text-white">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3 group">
+      <header className="bg-white">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/eduideal-logo-BUtjWTvV.png"
               alt="EDUiDEAL Academy Logo"
-              className="h-8 sm:h-9 w-auto object-contain block group-hover:scale-105 transition-transform"
+              className="block h-8 w-auto object-contain sm:h-9"
             />
           </Link>
 
           <Link
             href="/"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] text-black text-xs font-bold transition-all"
+            className="group inline-flex items-center gap-2 rounded-xl bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200 hover:text-neutral-900"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
             <span>Back to Overview</span>
           </Link>
         </div>
       </header>
 
       {/* Main Login Card */}
-      <main className="max-w-md w-full mx-auto px-4 py-12">
-        <LoginForm next={next} />
+      <main className="mx-auto flex w-full max-w-md flex-1 items-center px-4 py-12">
+        <div className="w-full">
+          <LoginForm next={next} />
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-xs text-[#555555] border-t border-[#E5E5E5] bg-white">
+      <footer className="py-6 text-center text-xs text-neutral-500">
         EDUiDEAL Academy — Learnova Digitalized Learning World &copy; 2026
       </footer>
     </div>

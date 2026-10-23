@@ -8,27 +8,30 @@ interface LoginFormProps {
   next?: string;
 }
 
+const inputClass =
+  "w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors hover:border-neutral-400 focus:border-[var(--brand)] focus:outline-none focus:ring-1 focus:ring-[var(--brand)]";
+
 export function LoginForm({ next }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState(loginAction, null);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-xl shadow-slate-200/50">
-      <div className="text-center mb-8 flex flex-col items-center justify-center">
+    <div className="rounded-3xl bg-white p-8 sm:p-10">
+      <div className="mb-10 flex flex-col items-center justify-center text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/assets/eduideal-logo-BUtjWTvV.png"
           alt="EDUiDEAL Academy Logo"
-          className="h-12 sm:h-14 w-auto object-contain mx-auto"
+          className="mx-auto h-12 w-auto object-contain sm:h-14"
         />
       </div>
 
       {state?.error && (
         <div
           role="alert"
-          className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5"
+          className="mb-6 flex items-start gap-2.5 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700"
         >
-          <span className="font-bold">⚠️</span>
+          <span>⚠️</span>
           <span>{state.error}</span>
         </div>
       )}
@@ -37,45 +40,53 @@ export function LoginForm({ next }: LoginFormProps) {
         {next && <input type="hidden" name="next" value={next} />}
 
         <div>
-          <label className="block text-sm font-medium text-black mb-1.5">
+          <label
+            htmlFor="identifier"
+            className="mb-2 block text-sm font-medium text-neutral-900"
+          >
             Register number or email
           </label>
           <div className="relative">
             <input
+              id="identifier"
               type="text"
               name="identifier"
               required
               autoComplete="username"
-              placeholder="Register number (students) or email (staff)"
-              className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all text-sm shadow-xs"
+              placeholder="Register number or email"
+              className={`${inputClass} pr-11`}
             />
-            <UserCheck className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
+            <UserCheck className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-black mb-1.5">
+          <label
+            htmlFor="password"
+            className="mb-2 block text-sm font-medium text-neutral-900"
+          >
             Password
           </label>
           <div className="relative">
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
               name="password"
               required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full px-4 py-3 pr-11 rounded-xl bg-white border border-[#E5E5E5] text-black placeholder-[#777777] focus:outline-none focus:border-[#C0222E] focus:ring-2 focus:ring-[#C0222E]/20 transition-all text-sm shadow-xs"
+              className={`${inputClass} pr-11`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-neutral-400 transition-colors hover:text-neutral-700"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeOff className="w-4 h-4" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <Eye className="w-4 h-4" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -84,24 +95,20 @@ export function LoginForm({ next }: LoginFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3.5 rounded-xl text-white font-extrabold text-sm tracking-wide shadow-md transition-all flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer"
-          style={{
-            background: "var(--brand)",
-            boxShadow: "0 4px 14px rgba(218,67,76,0.3)",
-          }}
+          className="group mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? (
             <span>Signing in...</span>
           ) : (
             <>
               <span>Sign In</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </>
           )}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-[#555555]">
+      <p className="mt-8 text-center text-xs text-neutral-500">
         Forgot your password? Please contact your branch admin.
       </p>
     </div>
