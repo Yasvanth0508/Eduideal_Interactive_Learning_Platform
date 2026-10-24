@@ -120,7 +120,7 @@ export async function ChapterDetailView({
             {/* Quick Stats Card */}
             <div className="flex-shrink-0">
               <div className="p-5 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] shadow-xs flex flex-col gap-3 min-w-[240px]">
-                <div className="flex items-center justify-between text-xs font-mono font-bold text-[#555555] uppercase tracking-wider">
+                <div className="flex items-center justify-between text-xs font-bold text-[#555555] uppercase tracking-wider">
                   <span>Curriculum</span>
                   <span className="text-[#C0222E]">CBSE 2026</span>
                 </div>
@@ -162,7 +162,7 @@ export async function ChapterDetailView({
                 >
                   {/* Topic Number */}
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center font-mono text-lg font-black flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center tabular-nums text-lg font-black flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
                     style={{
                       background: "var(--brand-tint)",
                       color: "var(--brand)",
@@ -248,7 +248,7 @@ export async function ChapterDetailView({
             <span>
               &copy; 2026 Learnova &bull; EDUiDEAL ACADEMY. All rights reserved.
             </span>
-            <div className="flex items-center gap-4 font-mono">
+            <div className="flex items-center gap-4">
               <Link
                 href={`/${subjectSlug}`}
                 className="hover:text-[#C0222E] transition-colors capitalize"

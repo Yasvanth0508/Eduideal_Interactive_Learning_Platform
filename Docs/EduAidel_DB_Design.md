@@ -1,12 +1,14 @@
-# EduAidel — Database Design
+# EduAidel — Database Design (v2)
+
+Product: Learnova by EDUiDEAL Academy. Launch scope: CBSE Class 12 (Physics, Chemistry, Mathematics) across three branches.
 
 ## Database Stack
 
 - Database: Supabase PostgreSQL
-- Authentication: Supabase Auth
-- Authorization: PostgreSQL Row Level Security (RLS)
+- Authentication: Supabase Auth (email + password)
+- Authorization: PostgreSQL Row Level Security (RLS) + server-side checks
 - File storage: Supabase Storage
-- ORM: Drizzle ORM
+- ORM: Drizzle ORM (schema file: `src/lib/db/schema.ts`)
 - Primary key type: UUID
 - Timestamps: `timestamptz`
 
@@ -14,8 +16,14 @@
 
 # 1. Core Hierarchy
 
+Learning content:
+
 ```text
-Subject
+Board (e.g. CBSE)
+  ↓
+Class (e.g. 12)
+  ↓
+Subject (Physics / Chemistry / Mathematics)
   ↓
 Chapter
   ↓
@@ -23,6 +31,18 @@ Topic
   ↓
 ContentBlock[]
 ```
+
+Organisation (who manages whom):
+
+```text
+Branch (Perambur / Kodungaiyur / Agaram)
+  ↓
+Users
+  ├── ADMIN   (one or more per branch)
+  └── STUDENT (belongs to exactly one branch)
+```
+
+Key rule: **content is global.** Every branch sees the same boards, classes, subjects, chapters and topics. A branch only decides which students an admin can manage.
 
 A topic can contain any combination of:
 
@@ -40,7 +60,71 @@ Do NOT create a separate hard-coded lesson table for every content type.
 
 ---
 
-# 2. Tables
+# 2. Organisation Tables
+
+## branches
+
+```text
+branches
+────────────────────────────────
+id              UUID PK
+name            TEXT NOT NULL
+slug            TEXT UNIQUE NOT NULL
+is_active       BOOLEAN DEFAULT TRUE
+created_at      TIMESTAMPTZ
+updated_at      TIMESTAMPTZ
+```
+
+Rules:
+
+- Branches are never deleted. Deactivate with `is_active = false`.
+- Initial data: Perambur, Kodungaiyur, Agaram.
+
+---
+
+## boards
+
+```text
+boards
+────────────────────────────────
+id              UUID PK
+name            TEXT NOT NULL      (e.g. CBSE, TN State Board)
+slug            TEXT UNIQUE NOT NULL
+is_active       BOOLEAN DEFAULT TRUE
+created_at      TIMESTAMPTZ
+```
+
+---
+
+## classes
+
+```text
+classes
+────────────────────────────────
+id              UUID PK
+board_id        UUID FK → boards.id NOT NULL
+name            TEXT NOT NULL      (e.g. 12)
+slug            TEXT NOT NULL
+display_order   INTEGER DEFAULT 0
+is_active       BOOLEAN DEFAULT TRUE
+created_at      TIMESTAMPTZ
+```
+
+Constraint:
+
+```text
+UNIQUE(board_id, slug)
+```
+
+Relationship:
+
+```text
+Board 1 ─── N Classes
+```
+
+---
+
+# 3. Core Tables
 
 ## users
 
@@ -49,13 +133,16 @@ Application-level user profile. Authentication is handled by Supabase Auth.
 ```text
 users
 ────────────────────────────────
-id              UUID PK FK auth.users(id)
-email           TEXT UNIQUE NOT NULL
-name            TEXT NOT NULL
-role            user_role NOT NULL
-is_active       BOOLEAN DEFAULT TRUE
-created_at      TIMESTAMPTZ
-updated_at      TIMESTAMPTZ
+id                UUID PK FK auth.users(id)
+email             TEXT UNIQUE NOT NULL
+name              TEXT NOT NULL
+role              user_role NOT NULL DEFAULT 'STUDENT'
+branch_id         UUID FK → branches.id NOT NULL
+register_number   TEXT UNIQUE NULL
+class_id          UUID FK → classes.id NULL
+is_active         BOOLEAN DEFAULT TRUE
+created_at        TIMESTAMPTZ
+updated_at        TIMESTAMPTZ
 ```
 
 Enum:
@@ -66,7 +153,17 @@ ADMIN
 STUDENT
 ```
 
-Never store passwords in this table.
+Rules:
+
+- Never store passwords in this table.
+- Every user (admin or student) belongs to exactly one branch.
+- `email` is mandatory and unique across all branches (one email per student; siblings need separate emails).
+- `register_number` is unique across all branches. It is set for students and NULL for admins.
+- `class_id` is set for students and NULL for admins.
+- A student can only be assigned subjects that belong to the student's class.
+- The `id` column matches `auth.users.id`. A foreign key to `auth.users(id) ON DELETE CASCADE` is added in the custom SQL migration, because Drizzle cannot reference the `auth` schema directly.
+
+Index: `users(branch_id)`, `users(class_id)`.
 
 ---
 
@@ -76,8 +173,9 @@ Never store passwords in this table.
 subjects
 ────────────────────────────────
 id              UUID PK
+class_id        UUID FK → classes.id NOT NULL
 name            TEXT NOT NULL
-slug            TEXT UNIQUE NOT NULL
+slug            TEXT NOT NULL
 description     TEXT
 thumbnail_url   TEXT
 display_order   INTEGER DEFAULT 0
@@ -86,9 +184,18 @@ created_at      TIMESTAMPTZ
 updated_at      TIMESTAMPTZ
 ```
 
+Constraint:
+
+```text
+UNIQUE(class_id, slug)
+```
+
+`slug` is unique per class, not globally, so Physics for Class 11 and Class 12 can both exist.
+
 Relationship:
 
 ```text
+Class 1 ─── N Subjects
 Subject 1 ─── N Chapters
 ```
 
@@ -106,15 +213,19 @@ slug            TEXT NOT NULL
 description     TEXT
 display_order   INTEGER DEFAULT 0
 is_published    BOOLEAN DEFAULT FALSE
+is_demo         BOOLEAN DEFAULT FALSE
 created_at      TIMESTAMPTZ
 updated_at      TIMESTAMPTZ
 ```
 
-Constraint:
+Constraints:
 
 ```text
 UNIQUE(subject_id, slug)
+UNIQUE(subject_id) WHERE is_demo = true     -- one demo chapter per subject
 ```
+
+`is_demo = true` marks the chapter shown in the public demo (no login). The client chooses which chapter is the demo chapter for each subject.
 
 Relationship:
 
@@ -154,7 +265,7 @@ Chapter 1 ─── N Topics
 
 ---
 
-# 3. Content System
+# 4. Content System
 
 ## content_blocks
 
@@ -211,7 +322,7 @@ Electric Field
 
 ---
 
-# 4. Media System
+# 5. Media System
 
 ## media_assets
 
@@ -233,19 +344,7 @@ created_at      TIMESTAMPTZ
 updated_at      TIMESTAMPTZ
 ```
 
-Storage contains the actual files.
-
-Example:
-
-```text
-eduaidel-assets/
-├── images/
-├── videos/
-├── models/
-└── thumbnails/
-```
-
-PostgreSQL stores only metadata and storage paths.
+Storage contains the actual files. PostgreSQL stores only metadata and storage paths.
 
 ---
 
@@ -315,11 +414,11 @@ Initial simulation constraints:
 - Keep simulation duration bounded where required.
 - Do not use Web Workers initially.
 - Do not use WebGPU initially.
-- Use Three.js + React Three Fiber + WebGL.
+- Use Three.js + WebGL.
 
 ---
 
-# 5. Formula System
+# 6. Formula System
 
 ## formula_configs
 
@@ -335,21 +434,6 @@ description         TEXT
 created_at          TIMESTAMPTZ
 updated_at          TIMESTAMPTZ
 ```
-
-Example:
-
-```text
-name:
-Coulomb's Law
-
-formula_expression:
-k * q1 * q2 / (r * r)
-
-result_unit:
-N
-```
-
----
 
 ## formula_variables
 
@@ -368,19 +452,11 @@ max_value       NUMERIC
 display_order   INTEGER DEFAULT 0
 ```
 
-Example:
-
-```text
-q1 → Charge 1 → C
-q2 → Charge 2 → C
-r  → Distance → m
-```
-
 Calculation is performed by the TypeScript formula engine.
 
 ---
 
-# 6. Graph System
+# 7. Graph System
 
 ## graph_configs
 
@@ -389,37 +465,22 @@ Store graph configuration, not generated graph points.
 ```text
 graph_configs
 ────────────────────────────────
-id              UUID PK
-content_block_id UUID UNIQUE FK → content_blocks.id
-graph_type      TEXT NOT NULL
-title           TEXT
-x_axis_label    TEXT
-y_axis_label    TEXT
-config          JSONB NOT NULL
-created_at      TIMESTAMPTZ
-updated_at      TIMESTAMPTZ
+id                UUID PK
+content_block_id  UUID UNIQUE FK → content_blocks.id
+graph_type        TEXT NOT NULL
+title             TEXT
+x_axis_label      TEXT
+y_axis_label      TEXT
+config            JSONB NOT NULL
+created_at        TIMESTAMPTZ
+updated_at        TIMESTAMPTZ
 ```
 
-Example:
-
-```json
-{
-  "xVariable": "distance",
-  "yVariable": "electricField",
-  "formula": "k * Q / (r * r)",
-  "minX": 1,
-  "maxX": 20,
-  "step": 0.1
-}
-```
-
-Frontend calculates graph points and renders them with ECharts.
-
-Do NOT store thousands of generated graph points unless they are genuinely static data.
+Frontend calculates graph points and renders them with ECharts. Do NOT store thousands of generated graph points unless they are genuinely static data.
 
 ---
 
-# 7. Questions System
+# 8. Questions System
 
 ## questions
 
@@ -441,25 +502,11 @@ updated_at          TIMESTAMPTZ
 Enums:
 
 ```text
-question_type:
-MCQ
-TRUE_FALSE
-NUMERICAL
-SHORT_ANSWER
+question_type:      MCQ | TRUE_FALSE | NUMERICAL | SHORT_ANSWER
+difficulty_level:   EASY | MEDIUM | HARD
 ```
-
-```text
-difficulty_level:
-EASY
-MEDIUM
-HARD
-```
-
----
 
 ## question_options
-
-Used primarily for MCQ / option-based questions.
 
 ```text
 question_options
@@ -473,23 +520,34 @@ display_order   INTEGER DEFAULT 0
 
 ---
 
-# 8. Student Access
+# 9. Student Access, Progress and Notes
 
 ## student_subjects
 
-Controls which subjects a student can access.
+Controls which subjects a student can access. Admins grant and revoke subject-wise.
 
 ```text
 student_subjects
 ────────────────────────────────
-student_id      UUID FK → users.id
-subject_id      UUID FK → subjects.id
+student_id      UUID FK → users.id ON DELETE CASCADE
+subject_id      UUID FK → subjects.id ON DELETE CASCADE
 assigned_at     TIMESTAMPTZ
-expires_at      TIMESTAMPTZ NULL
+assigned_by     UUID FK → users.id NULL (ON DELETE SET NULL)
+revoked_at      TIMESTAMPTZ NULL
+revoked_by      UUID FK → users.id NULL (ON DELETE SET NULL)
 is_active       BOOLEAN DEFAULT TRUE
 
 PRIMARY KEY(student_id, subject_id)
 ```
+
+Rules:
+
+- A student has access to a subject only if a row exists with `is_active = true`.
+- **Grant:** insert the row, or if it exists, set `is_active = true`, clear `revoked_at` / `revoked_by`, and set `assigned_by`.
+- **Revoke:** set `is_active = false`, `revoked_at = now()`, `revoked_by = <admin id>`. Do not delete the row, so there is a record of who changed access and when.
+- There is no expiry. Access lasts until an admin revokes it or the student is deleted at the end of the academic year.
+- The subject must belong to the student's class (checked in the server route).
+- An admin can only grant or revoke for students in their own branch.
 
 Do NOT use:
 
@@ -505,15 +563,12 @@ Example:
 
 ```text
 Student A
-├── Physics
-└── Mathematics
+├── Physics        (active)
+├── Mathematics    (active)
+└── Chemistry      (no row = no access)
 ```
 
-No Chemistry assignment = no Chemistry access.
-
 ---
-
-# 9. Student Progress
 
 ## student_progress
 
@@ -521,9 +576,9 @@ No Chemistry assignment = no Chemistry access.
 student_progress
 ────────────────────────────────
 id                  UUID PK
-student_id          UUID FK → users.id
-topic_id            UUID FK → topics.id
-content_block_id    UUID FK → content_blocks.id NULL
+student_id          UUID FK → users.id ON DELETE CASCADE
+topic_id            UUID FK → topics.id ON DELETE CASCADE
+content_block_id    UUID FK → content_blocks.id NULL (ON DELETE SET NULL)
 status              progress_status NOT NULL
 progress_percent    INTEGER DEFAULT 0
 last_accessed_at    TIMESTAMPTZ
@@ -541,62 +596,51 @@ IN_PROGRESS
 COMPLETED
 ```
 
-Use this for:
+---
+
+## student_notes
+
+Personal notes a student writes against a topic. Each topic page has a notes button that shows the student's saved notes.
 
 ```text
-Topic progress
-Content-block progress
-Last accessed content
-Completion tracking
+student_notes
+────────────────────────────────
+id              UUID PK
+student_id      UUID FK → users.id ON DELETE CASCADE
+topic_id        UUID FK → topics.id ON DELETE CASCADE
+content         TEXT NOT NULL
+created_at      TIMESTAMPTZ
+updated_at      TIMESTAMPTZ
 ```
+
+Rules:
+
+- Notes are tied to topics only.
+- Several notes per topic are allowed. To limit to one note per topic, change the `(student_id, topic_id)` index to unique.
+- A student can only read and write their own notes.
 
 ---
 
 # 10. Complete Relationship Model
 
 ```text
-users
- │
- ├──────────────→ student_subjects
- │                       │
- │                       ↓
- │                    subjects
- │                       │
- │                       ↓
- │                    chapters
- │                       │
- │                       ↓
- │                     topics
- │                       │
- │                       ↓
- │                content_blocks
- │                       │
- │        ┌──────────────┼────────────────┐
- │        │              │                │
- │        ↓              ↓                ↓
- │   formula_configs graph_configs   video_assets
- │        │                               │
- │        ↓                               ↓
- │ formula_variables                 media_assets
- │
- │
- └──────────────→ student_progress
-                         │
-                         ↓
-                  topics/content_blocks
+boards ──→ classes ──→ subjects ──→ chapters ──→ topics ──→ content_blocks
+                           ↑
+                           │
+branches ──→ users ──→ student_subjects
+               │
+               ├──→ student_progress ──→ topics / content_blocks
+               └──→ student_notes    ──→ topics
 
+users.class_id ──→ classes
 
 content_blocks
  │
- ├── THREE_D → three_d_assets → media_assets
- │
- ├── VIDEO   → video_assets   → media_assets
- │
- ├── FORMULA → formula_configs → formula_variables
- │
- ├── GRAPH   → graph_configs
- │
- └── QUESTIONS → questions → question_options
+ ├── THREE_D   → three_d_assets  → media_assets
+ ├── VIDEO     → video_assets    → media_assets
+ ├── FORMULA   → formula_configs → formula_variables
+ ├── GRAPH     → graph_configs
+ └── QUESTIONS → questions       → question_options
 ```
 
 ---
@@ -605,38 +649,13 @@ content_blocks
 
 ## PostgreSQL
 
-Store:
-
-```text
-Users
-Subjects
-Chapters
-Topics
-Content blocks
-Theory
-Formula definitions
-Formula variables
-Graph configurations
-3D metadata
-Video metadata
-Questions
-Student access
-Student progress
-```
+Store: branches, boards, classes, users, subjects, chapters, topics, content blocks, theory, formula definitions and variables, graph configurations, 3D metadata, video metadata, questions, student access, student progress, student notes.
 
 ## Supabase Storage
 
-Store:
+Store: videos, images, thumbnails, GLB/glTF models, other large media files.
 
-```text
-Videos
-Images
-Thumbnails
-GLB/glTF models
-Other large media files
-```
-
-Never store large video/model/image binaries directly in PostgreSQL.
+Never store large video/model/image binaries directly in PostgreSQL. Keep the bucket private and serve media through signed URLs, so only students with access can open it.
 
 ---
 
@@ -678,8 +697,13 @@ images/physics/electrostatics/electric-field.png
 Create indexes on:
 
 ```text
+classes(board_id)
+subjects(class_id)
 chapters(subject_id)
 topics(chapter_id)
+
+users(branch_id)
+users(class_id)
 
 content_blocks(topic_id)
 content_blocks(topic_id, display_order)
@@ -690,30 +714,32 @@ student_subjects(subject_id)
 student_progress(student_id)
 student_progress(topic_id)
 
+student_notes(student_id, topic_id)
+
 questions(content_block_id)
-
 question_options(question_id)
-
 formula_variables(formula_id)
 ```
 
 Unique constraints:
 
 ```text
-subjects.slug
-
+branches.slug
+boards.slug
+classes(board_id, slug)
+subjects(class_id, slug)
 chapters(subject_id, slug)
-
+chapters(subject_id) WHERE is_demo = true
 topics(chapter_id, slug)
+
+users.email
+users.register_number
 
 student_subjects(student_id, subject_id)
 
 video_assets.content_block_id
-
 three_d_assets.content_block_id
-
 formula_configs.content_block_id
-
 graph_configs.content_block_id
 ```
 
@@ -733,110 +759,140 @@ content_blocks
 Workflow:
 
 ```text
-Create
-  ↓
-Draft
-  ↓
-Add content
-  ↓
-Add media
-  ↓
-Add formula/graph/3D/questions
-  ↓
-Review
-  ↓
-Publish
-  ↓
-Student access
+Create → Draft → Add content → Add media → Add formula/graph/3D/questions → Review → Publish → Student access
 ```
 
-Students should only receive published content.
+Students and the public demo only receive published content.
 
 ---
 
-# 15. Authorization Model
+# 15. Authentication
+
+- Supabase Auth with email + password. Public sign-up is disabled.
+- **Admins** sign in with their email and password.
+- **Students** sign in with their **register number** and password. Supabase Auth only understands email, so the server looks up the student's email from `users.register_number` and then signs in with that email. The student never needs to see or use the email.
+- Admin accounts are created in the Supabase dashboard, then linked by inserting a `users` row (role `ADMIN`, with `branch_id`).
+- Student accounts are created only by a branch admin through a server route using the service-role key. The route forces `branch_id` to the admin's own branch and removes the auth user again if the `users` insert fails.
+- A user can only use the app if `users.is_active = true` and their branch is active.
+
+---
+
+# 16. Authorization Model
 
 Roles:
 
 ```text
-ADMIN
+ADMIN      (scoped to one branch)
 STUDENT
 ```
 
-### ADMIN
+A `SUPER_ADMIN` role (all branches) is not built yet. It can be added later as a new enum value with policies that skip the branch check.
+
+### ADMIN (branch admin)
 
 ```text
-Create/update/delete
-subjects
-chapters
-topics
-content
-questions
-formulas
-media metadata
-student accounts
-student subject assignments
+Read / create / update students of OWN branch only
+Grant and revoke subject access for students of OWN branch only
+Create/update/delete content: subjects, chapters, topics, content blocks,
+questions, formulas, media metadata (content is global)
 ```
+
+An admin can never read or change students of another branch, and can never change a student's `branch_id` or `role`.
 
 ### STUDENT
 
 ```text
-Read published content
-    +
-Only assigned subjects
+Read published content of subjects with an active student_subjects row
+Read own student_subjects rows
+Read and update own progress
+Read and write own notes
+```
 
-Update own progress
+### Public (no login, demo)
+
+```text
+Read published chapters where is_demo = true, and their topics and content
+```
+
+### Policy summary
+
+| Table | ADMIN | STUDENT | Anonymous |
+|---|---|---|---|
+| users | Select/insert/update where `branch_id` = own branch. Cannot change `branch_id` or `role` | Read own row | None |
+| student_subjects | All operations where the student is in own branch | Read own rows | None |
+| subjects, chapters, topics, content_blocks and child tables | Full access | Read published rows of assigned subjects (`can_access_topic`) | Read published demo chapters only |
+| student_progress | Read for own-branch students | Read/write own rows | None |
+| student_notes | None | Read/write own rows | None |
+| branches, boards, classes | Read | Read | None |
+
+Helper functions used by the policies (SECURITY DEFINER, to avoid recursion):
+
+```text
+current_branch()          → branch_id of the logged-in user
+is_admin()                → true if logged-in user is an active ADMIN
+can_access_topic(topic)   → published topic in a subject with an active student_subjects row
 ```
 
 Enforce access using:
 
 ```text
 Supabase Auth
-        +
+      +
 PostgreSQL RLS
+      +
+Server-side branch checks (server code using Drizzle connects as the postgres role and bypasses RLS)
 ```
 
 Never rely only on frontend route hiding.
 
 ---
 
-# 16. Example Lesson
+# 17. Account Lifecycle
+
+- At the end of each academic year, an admin deletes the students. Delete the auth user through the admin API; the `auth.users` foreign key cascade removes the `users` row, and cascades remove `student_subjects`, `student_progress` and `student_notes`.
+- Branches, boards, classes, subjects and content are not affected.
+
+---
+
+# 18. Initial Seed Data
 
 ```text
-Physics
-└── Electrostatics
-    └── Electric Field
-        │
-        ├── THEORY
-        │     └── Markdown/structured content
-        │
-        ├── FORMULA
-        │     └── formula_configs
-        │           └── formula_variables
-        │
-        ├── GRAPH
-        │     └── graph_configs
-        │
-        ├── THREE_D
-        │     └── three_d_assets
-        │           └── media_assets
-        │                 └── Supabase Storage
-        │
-        ├── VIDEO
-        │     └── video_assets
-        │           └── media_assets
-        │                 └── Supabase Storage
-        │
-        └── QUESTIONS
-              └── questions
-                    └── question_options
+branches : Perambur, Kodungaiyur, Agaram
+boards   : CBSE
+classes  : 12 (under CBSE)
+subjects : Physics, Chemistry, Mathematics (under CBSE 12)
+admins   : one per branch (created in Supabase Auth, then linked in users)
 ```
 
 ---
 
-# 17. Final Table List
+# 19. Example Lesson
 
 ```text
+CBSE
+└── Class 12
+    └── Physics
+        └── Electrostatics
+            └── Electric Field
+                │
+                ├── THEORY      → structured content
+                ├── FORMULA     → formula_configs → formula_variables
+                ├── GRAPH       → graph_configs
+                ├── THREE_D     → three_d_assets → media_assets → Supabase Storage
+                ├── VIDEO       → video_assets   → media_assets → Supabase Storage
+                └── QUESTIONS   → questions → question_options
+```
+
+---
+
+# 20. Final Table List
+
+```text
+ORGANISATION
+├── branches
+├── boards
+└── classes
+
 CORE
 ├── users
 ├── subjects
@@ -860,23 +916,28 @@ ASSESSMENT
 
 STUDENT
 ├── student_subjects
-└── student_progress
+├── student_progress
+└── student_notes
 ```
 
 ## Final Design Principle
 
 ```text
-Subject
-   ↓
-Chapter
-   ↓
-Topic
-   ↓
-ContentBlock
-   ↓
-Specialized Content
-   ↓
-Media / Configuration
+Board → Class → Subject → Chapter → Topic → ContentBlock → Specialized Content → Media / Configuration
 ```
 
-The schema must support adding new lessons and new combinations of content **without changing the database schema**.
+The schema must support adding new lessons and new combinations of content **without changing the database schema**. Branch management only controls which students an admin can manage; it never changes the content.
+
+---
+
+# 21. Changes from v1
+
+| Area | Change |
+|---|---|
+| New tables | `branches`, `boards`, `classes`, `student_notes` |
+| users | Added `branch_id` (required), `register_number` (unique), `class_id` |
+| subjects | Added `class_id` (required); `slug` unique per class instead of globally |
+| chapters | Added `is_demo`; one demo chapter per subject |
+| student_subjects | Added `assigned_by`, `revoked_at`, `revoked_by`; removed `expires_at`; revoke is a soft revoke |
+| Authorization | Admins are branch-scoped; demo access for anonymous users; policy summary added |
+| Authentication | Students sign in with register number, admins with email |

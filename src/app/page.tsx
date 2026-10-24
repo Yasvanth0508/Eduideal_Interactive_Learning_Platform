@@ -379,7 +379,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span
-              className="text-xs font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block border"
+              className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block border"
               style={{
                 background: "var(--brand-tint)",
                 color: "var(--brand)",
@@ -446,16 +446,16 @@ export default function Home() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#FAFAFA] text-[#555555] border border-[#E5E5E5] font-mono">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#FAFAFA] text-[#555555] border border-[#E5E5E5]">
                           {subj.badge}
                         </span>
                         {isChemistry ? (
-                          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5 shadow-xs">
+                          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5 shadow-xs">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping" />
                             <span>DEMO ENABLED</span>
                           </span>
                         ) : (
-                          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
                             <Lock className="w-3 h-3 text-amber-600" />
                             <span>LOCKED</span>
                           </span>
@@ -592,7 +592,7 @@ export default function Home() {
                 className="p-6 rounded-2xl bg-white border border-[#E5E5E5] shadow-xs relative"
               >
                 <span
-                  className="text-2xl font-black font-mono block mb-3"
+                  className="text-2xl font-black block mb-3 tabular-nums"
                   style={{ color: "var(--brand)" }}
                 >
                   {step.step}
@@ -631,7 +631,7 @@ export default function Home() {
                   <span className="font-extrabold text-xl tracking-tight text-white">
                     Learnova
                   </span>
-                  <p className="text-xs text-slate-400 font-mono">
+                  <p className="text-xs text-slate-400">
                     EDUiDEAL Academy
                   </p>
                 </div>
@@ -645,7 +645,7 @@ export default function Home() {
 
             {/* Branches List */}
             <div className="lg:col-span-7 space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                 EDUiDEAL Academy Branches
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -655,7 +655,7 @@ export default function Home() {
                     className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1"
                   >
                     <p
-                      className="text-xs font-bold uppercase tracking-wide font-mono"
+                      className="text-xs font-bold uppercase tracking-wide"
                       style={{ color: "var(--brand)" }}
                     >
                       {branch.city}
@@ -663,7 +663,7 @@ export default function Home() {
                     <p className="text-xs text-slate-300 font-medium">
                       {branch.address}
                     </p>
-                    <p className="text-xs text-slate-400 font-mono flex items-center gap-1 pt-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1 pt-1 tabular-nums">
                       <Phone className="w-3 h-3 text-slate-500" />
                       <span>{branch.phone}</span>
                     </p>
@@ -674,7 +674,7 @@ export default function Home() {
           </div>
 
           {/* Bottom Row */}
-          <div className="pt-8 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
+          <div className="pt-8 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               &copy; 2026 Learnova — The Digitalized Learning World. All rights
               reserved.

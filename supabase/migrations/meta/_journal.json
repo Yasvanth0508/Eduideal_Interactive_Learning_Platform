@@ -8,6 +8,13 @@
       "when": 1789647402033,
       "tag": "0000_right_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792738327738,
+      "tag": "0001_nasty_vertigo",
+      "breakpoints": true
     }
   ]
 }

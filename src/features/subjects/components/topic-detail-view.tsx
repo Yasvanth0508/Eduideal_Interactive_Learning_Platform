@@ -129,7 +129,7 @@ export async function TopicDetailView({
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className="text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5"
+                    className="text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5"
                     style={{
                       background: "var(--brand-tint)",
                       color: "var(--brand)",
@@ -230,7 +230,7 @@ export async function TopicDetailView({
                     </div>
 
                     <div className="space-y-2">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold font-mono px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                         <Clock className="w-3 h-3 text-amber-600" />
                         <span>CONTENT PREPARATION PHASE</span>
                       </span>
@@ -312,7 +312,7 @@ export async function TopicDetailView({
             <span>
               &copy; 2026 Learnova &bull; EDUiDEAL ACADEMY. All rights reserved.
             </span>
-            <div className="flex items-center gap-4 font-mono">
+            <div className="flex items-center gap-4">
               <Link
                 href={`/${subjectSlug}/${chapterSlug}`}
                 className="hover:text-[#C0222E] transition-colors"
