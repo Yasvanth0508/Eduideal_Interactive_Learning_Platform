@@ -4,16 +4,17 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronRight,
-  Sparkles,
+
   BookOpen,
   Clock,
   Layers,
   MapPin,
 } from "lucide-react";
 import { getChapterWithTopics, getTopicBySlug } from "../queries";
-import { getTopicContentBlocks } from "@/features/content/queries";
-import { ContentBlockRenderer } from "@/features/content/components/content-block-renderer";
-import { TopicSidebar } from "./topic-sidebar";
+import { getTopicContentBlocks } from "@/server/services/content-service";
+import { ContentBlockRenderer } from "@/components/lesson/content-block-renderer";
+import { TopicSidebar } from "@/components/navigation/topic-sidebar";
+import { EmptyLessonState } from "@/components/lesson/empty-lesson-state";
 
 interface TopicDetailViewProps {
   subjectSlug: string;
@@ -214,50 +215,14 @@ export async function TopicDetailView({
                 </div>
               </section>
             ) : (
-              /* Coming Soon Card when topic blocks are not yet populated */
-              <section className="py-16 sm:py-24 px-4 sm:px-8 bg-[#FAFAFA]">
-                <div className="max-w-3xl mx-auto text-center space-y-6">
-                  <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#E5E5E5] shadow-sm flex flex-col items-center gap-6">
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xs"
-                      style={{
-                        background: "var(--brand-tint)",
-                        color: "var(--brand)",
-                        border: "1px solid var(--brand-border)",
-                      }}
-                    >
-                      <Sparkles className="w-8 h-8" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                        <Clock className="w-3 h-3 text-amber-600" />
-                        <span>CONTENT PREPARATION PHASE</span>
-                      </span>
-
-                      <h2 className="text-2xl font-bold text-black tracking-tight">
-                        Educational Content Coming Soon
-                      </h2>
-
-                      <p className="text-sm text-[#555555] leading-relaxed max-w-md mx-auto">
-                        The chapter structure and topic routing are active.
-                        Detailed theory, formulas, visual graphs, and practice problems will be loaded for this topic.
-                      </p>
-                    </div>
-
-                    <div>
-                      <Link
-                        href={`/${subjectSlug}/${chapterSlug}`}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 cursor-pointer"
-                        style={{ background: "var(--brand)" }}
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span>Return to {topic.chapterName} Topics</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              <EmptyLessonState
+                type="topic"
+                subjectName={topic.subjectName}
+                chapterName={topic.chapterName}
+                topicName={topic.name}
+                backHref={`/${subjectSlug}/${chapterSlug}`}
+                backLabel={`Return to ${topic.chapterName} Topics`}
+              />
             )}
           </div>
         </main>

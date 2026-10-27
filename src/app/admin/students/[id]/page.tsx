@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { requireRole } from "@/lib/auth/session";
-import { getStudentDetail } from "@/features/admin/queries";
-import { PageHeader } from "@/features/admin/components/page-header";
-import { StatusBadge } from "@/features/admin/components/status-badge";
-import { Card, CardHeader } from "@/features/admin/components/card";
-import { StudentProfileForm } from "@/features/admin/components/student-profile-form";
-import { StudentSubjectRow } from "@/features/admin/components/student-subject-row";
-import { StudentPasswordForm } from "@/features/admin/components/student-password-form";
-import { StudentStatusToggle } from "@/features/admin/components/student-status-toggle";
-import { StudentDeleteForm } from "@/features/admin/components/student-delete-form";
+import { requireRole } from "@/server/authorization/session";
+import { getStudentDetail } from "@/features/students/queries";
+import { PageHeader } from "@/features/students/components/page-header";
+import { StatusBadge } from "@/features/students/components/status-badge";
+import { Card, CardHeader } from "@/features/students/components/card";
+import { StudentProfileForm } from "@/features/students/components/student-profile-form";
+import { StudentSubjectRow } from "@/features/students/components/student-subject-row";
+import { StudentPasswordForm } from "@/features/students/components/student-password-form";
+import { StudentStatusToggle } from "@/features/students/components/student-status-toggle";
+import { StudentDeleteForm } from "@/features/students/components/student-delete-form";
 
 interface StudentDetailPageProps {
   params: Promise<{ id: string }>;

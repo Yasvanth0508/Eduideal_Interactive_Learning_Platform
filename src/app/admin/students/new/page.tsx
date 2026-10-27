@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { requireRole } from "@/lib/auth/session";
-import { getCreateFormData } from "@/features/admin/queries";
-import { PageHeader } from "@/features/admin/components/page-header";
-import { CreateStudentForm } from "@/features/admin/components/create-student-form";
+import { requireRole } from "@/server/authorization/session";
+import { getCreateFormData } from "@/features/students/queries";
+import { PageHeader } from "@/features/students/components/page-header";
+import { CreateStudentForm } from "@/features/students/components/create-student-form";
 
 export default async function NewStudentPage() {
   const user = await requireRole("ADMIN");

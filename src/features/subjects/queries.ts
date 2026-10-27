@@ -1,15 +1,44 @@
 import { db } from "@/lib/db";
 import { subjects, chapters, topics } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
-import { ChapterWithTopics, TopicDetail } from "./types";
-import {
-  getFallbackChapterWithTopics,
-  getFallbackTopic,
-} from "./data";
+import { ChapterDetail, ChapterWithTopics, TopicDetail } from "./types";
+
+/**
+ * Fetches all published chapters for a given subject.
+ */
+export async function getSubjectChapters(
+  subjectSlug: string
+): Promise<ChapterDetail[]> {
+  try {
+    const [subject] = await db
+      .select()
+      .from(subjects)
+      .where(and(eq(subjects.slug, subjectSlug), eq(subjects.isPublished, true)))
+      .limit(1);
+
+    if (!subject) return [];
+
+    return await db
+      .select({
+        id: chapters.id,
+        subjectId: chapters.subjectId,
+        name: chapters.name,
+        slug: chapters.slug,
+        description: chapters.description,
+        displayOrder: chapters.displayOrder,
+        isPublished: chapters.isPublished,
+      })
+      .from(chapters)
+      .where(and(eq(chapters.subjectId, subject.id), eq(chapters.isPublished, true)))
+      .orderBy(asc(chapters.displayOrder));
+  } catch (err) {
+    console.error("Error fetching subject chapters:", err);
+    return [];
+  }
+}
 
 /**
  * Fetches a chapter and all its published topics in display_order.
- * Includes graceful fallback to canonical data if database connection is pending.
  */
 export async function getChapterWithTopics(
   subjectSlug: string,
@@ -24,7 +53,7 @@ export async function getChapterWithTopics(
       .limit(1);
 
     if (!subject) {
-      return getFallbackChapterWithTopics(subjectSlug, chapterSlug);
+      return null;
     }
 
     // 2. Fetch Chapter
@@ -41,7 +70,7 @@ export async function getChapterWithTopics(
       .limit(1);
 
     if (!chapter) {
-      return getFallbackChapterWithTopics(subjectSlug, chapterSlug);
+      return null;
     }
 
     // 3. Fetch Published Topics ordered by display_order
@@ -50,10 +79,6 @@ export async function getChapterWithTopics(
       .from(topics)
       .where(and(eq(topics.chapterId, chapter.id), eq(topics.isPublished, true)))
       .orderBy(asc(topics.displayOrder));
-
-    if (topicRecords.length === 0) {
-      return getFallbackChapterWithTopics(subjectSlug, chapterSlug);
-    }
 
     return {
       id: chapter.id,
@@ -67,9 +92,9 @@ export async function getChapterWithTopics(
       subjectSlug: subject.slug,
       topics: topicRecords,
     };
-  } catch {
-    // Graceful fallback for local development before Supabase DB connection is live
-    return getFallbackChapterWithTopics(subjectSlug, chapterSlug);
+  } catch (err) {
+    console.error("Error fetching chapter with topics:", err);
+    return null;
   }
 }
 
@@ -84,12 +109,12 @@ export async function getTopicBySlug(
   try {
     const chapterData = await getChapterWithTopics(subjectSlug, chapterSlug);
     if (!chapterData) {
-      return getFallbackTopic(subjectSlug, chapterSlug, topicSlug);
+      return null;
     }
 
     const topic = chapterData.topics.find((t) => t.slug === topicSlug);
     if (!topic || !topic.isPublished) {
-      return getFallbackTopic(subjectSlug, chapterSlug, topicSlug);
+      return null;
     }
 
     return {
@@ -99,7 +124,8 @@ export async function getTopicBySlug(
       subjectName: chapterData.subjectName,
       subjectSlug: chapterData.subjectSlug,
     };
-  } catch {
-    return getFallbackTopic(subjectSlug, chapterSlug, topicSlug);
+  } catch (err) {
+    console.error("Error fetching topic by slug:", err);
+    return null;
   }
 }

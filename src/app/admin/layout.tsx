@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { requireRole } from "@/lib/auth/session";
-import { AdminShell } from "@/features/admin/components/admin-shell";
+import { requireRole } from "@/server/authorization/session";
+import { AdminShell } from "@/features/students/components/admin-shell";
 
 export const metadata: Metadata = {
   title: "Branch Admin | EDUiDEAL Academy — Learnova",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Card } from "@/features/admin/components/card";
+import { Card } from "@/features/students/components/card";
 
 export default function StudentNotFound() {
   return (

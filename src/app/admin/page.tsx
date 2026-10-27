@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { requireRole } from "@/lib/auth/session";
-import { listStudents } from "@/features/admin/queries";
-import { PageHeader } from "@/features/admin/components/page-header";
-import { StatusBadge } from "@/features/admin/components/status-badge";
-import { EmptyState } from "@/features/admin/components/empty-state";
+import { requireRole } from "@/server/authorization/session";
+import { listStudents } from "@/features/students/queries";
+import { PageHeader } from "@/features/students/components/page-header";
+import { StatusBadge } from "@/features/students/components/status-badge";
+import { EmptyState } from "@/features/students/components/empty-state";
 
 interface AdminPageProps {
   searchParams: Promise<{

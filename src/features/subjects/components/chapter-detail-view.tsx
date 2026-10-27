@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { getChapterWithTopics } from "../queries";
+import { EmptyLessonState } from "@/components/lesson/empty-lesson-state";
 
 interface ChapterDetailViewProps {
   subjectSlug: string;
@@ -190,11 +191,13 @@ export async function ChapterDetailView({
           </div>
 
           {publishedTopics.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-2xl border border-[#E5E5E5] p-8">
-              <p className="text-[#555555] text-sm">
-                No published topics found for this chapter yet.
-              </p>
-            </div>
+            <EmptyLessonState
+              type="chapter"
+              subjectName={chapterData.subjectName}
+              chapterName={chapterData.name}
+              backHref={`/${subjectSlug}`}
+              backLabel={`Back to ${chapterData.subjectName}`}
+            />
           )}
         </div>
       </section>

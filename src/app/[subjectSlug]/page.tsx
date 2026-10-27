@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SubjectView } from "@/features/subjects/components/subject-view";
+import { getSubjectChapters } from "@/features/subjects/queries";
 
 interface DynamicSubjectPageProps {
   params: Promise<{
@@ -24,6 +25,13 @@ export default async function DynamicSubjectPage({ params }: DynamicSubjectPageP
   const { subjectSlug } = await params;
   const capitalized =
     subjectSlug.charAt(0).toUpperCase() + subjectSlug.slice(1);
+  const chapters = await getSubjectChapters(subjectSlug);
 
-  return <SubjectView subjectSlug={subjectSlug} subjectName={capitalized} />;
+  return (
+    <SubjectView
+      subjectSlug={subjectSlug}
+      subjectName={capitalized}
+      chapters={chapters}
+    />
+  );
 }
