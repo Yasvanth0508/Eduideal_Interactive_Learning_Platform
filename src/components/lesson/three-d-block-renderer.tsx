@@ -55,7 +55,79 @@ export function ThreeDBlockRenderer({ block }: ThreeDBlockRendererProps) {
     const group = new THREE.Group();
     scene.add(group);
 
-    // Central geometric placeholder representation
+    const disposables: { dispose: () => void }[] = [];
+
+    if (threeDData.modelId === "solution-molecules" || threeDData.modelId?.includes("solution")) {
+      // Chemistry Molecular Solution Visualization: Solute Ion + Solvent Hydration Shell
+      // Central Solute Cation (e.g. Na+)
+      const cationGeo = new THREE.SphereGeometry(0.55, 32, 32);
+      const cationMat = new THREE.MeshStandardMaterial({
+        color: 0x9333ea, // Purple
+        roughness: 0.2,
+        metalness: 0.3,
+      });
+      const cation = new THREE.Mesh(cationGeo, cationMat);
+      cation.position.set(-0.6, 0, 0);
+      group.add(cation);
+      disposables.push(cationGeo, cationMat);
+
+      // Central Solute Anion (e.g. Cl-)
+      const anionGeo = new THREE.SphereGeometry(0.7, 32, 32);
+      const anionMat = new THREE.MeshStandardMaterial({
+        color: 0x16a34a, // Green
+        roughness: 0.2,
+        metalness: 0.3,
+      });
+      const anion = new THREE.Mesh(anionGeo, anionMat);
+      anion.position.set(0.6, 0, 0);
+      group.add(anion);
+      disposables.push(anionGeo, anionMat);
+
+      // Surrounding Solvent Water Dipoles (H2O: Red Oxygen + White Hydrogens)
+      const waterGroup = new THREE.Group();
+      group.add(waterGroup);
+
+      const oxygenGeo = new THREE.SphereGeometry(0.25, 16, 16);
+      const oxygenMat = new THREE.MeshStandardMaterial({ color: 0xef4444 }); // Red
+      const hydrogenGeo = new THREE.SphereGeometry(0.14, 16, 16);
+      const hydrogenMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc }); // White
+      disposables.push(oxygenGeo, oxygenMat, hydrogenGeo, hydrogenMat);
+
+      const numWaterMols = 8;
+      for (let i = 0; i < numWaterMols; i++) {
+        const mol = new THREE.Group();
+        const angle = (i / numWaterMols) * Math.PI * 2;
+        const radius = 1.9 + Math.sin(i * 2) * 0.3;
+        mol.position.set(Math.cos(angle) * radius, (Math.sin(i * 3) * 0.6), Math.sin(angle) * radius);
+
+        const oxygen = new THREE.Mesh(oxygenGeo, oxygenMat);
+        mol.add(oxygen);
+
+        const h1 = new THREE.Mesh(hydrogenGeo, hydrogenMat);
+        h1.position.set(0.2, 0.15, 0);
+        mol.add(h1);
+
+        const h2 = new THREE.Mesh(hydrogenGeo, hydrogenMat);
+        h2.position.set(-0.2, 0.15, 0);
+        mol.add(h2);
+
+        mol.rotation.z = angle;
+        waterGroup.add(mol);
+      }
+
+      return {
+        update: (time: number) => {
+          group.rotation.y = time * 0.35;
+          waterGroup.rotation.x = Math.sin(time * 0.5) * 0.2;
+          waterGroup.rotation.z = Math.cos(time * 0.5) * 0.2;
+        },
+        cleanup: () => {
+          disposables.forEach((d) => d.dispose());
+        },
+      };
+    }
+
+    // Default Central geometric placeholder representation
     const geometry = new THREE.IcosahedronGeometry(1.2, 1);
     const wireframeGeometry = new THREE.WireframeGeometry(geometry);
     const line = new THREE.LineSegments(

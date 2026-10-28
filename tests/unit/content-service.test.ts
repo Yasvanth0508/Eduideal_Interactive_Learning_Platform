@@ -43,9 +43,19 @@ describe("ContentService", () => {
       assert.deepEqual(blocks, []);
     });
 
-    it("should report default chapters as unauthored (empty topicIds)", async () => {
-      const isAuthored = await ContentService.isChapterAuthored("chem-c01");
+    it("should report unauthored chapters as false (empty topicIds)", async () => {
+      const isAuthored = await ContentService.isChapterAuthored("phy-c01");
       assert.equal(isAuthored, false);
+    });
+
+    it("should resolve authored demo topic in chemistry Solutions chapter", async () => {
+      const isAuthored = await ContentService.isChapterAuthored("chem-c01");
+      assert.equal(isAuthored, true);
+
+      const topic = await ContentService.resolveTopic("chemistry", "solutions", "colligative-properties");
+      assert.ok(topic);
+      assert.equal(topic.metadata.title, "Colligative Properties & Elevation of Boiling Point");
+      assert.equal(topic.blocks.length, 6);
     });
   });
 

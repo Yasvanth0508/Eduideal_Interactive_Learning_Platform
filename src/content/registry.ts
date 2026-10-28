@@ -10,6 +10,8 @@ import {
   topicMetadataSchema,
   topicContentSchema,
 } from "@/lib/validation/content-schema";
+import { chemistryChapter01 } from "./class-12/chemistry/chapter-01/chapter";
+import { topic01Content } from "./class-12/chemistry/chapter-01/topics/topic-01";
 
 export type TopicLoader = () => Promise<TopicContent> | TopicContent;
 
@@ -45,6 +47,13 @@ export class ContentRegistry {
     const subjectSlug = subject ? subject.slug.toLowerCase() : validated.subjectId.toLowerCase();
     const key = `${subjectSlug}/${validated.slug.toLowerCase()}`;
     this.chaptersBySlug.set(key, validated.id);
+
+    // Support chapter slug aliases (e.g. "solutions" <-> "chapter-01")
+    if (validated.slug === "solutions") {
+      this.chaptersBySlug.set(`${subjectSlug}/chapter-01`, validated.id);
+    } else if (validated.slug === "chapter-01" && validated.id === "chem-c01") {
+      this.chaptersBySlug.set(`${subjectSlug}/solutions`, validated.id);
+    }
   }
 
   /**
@@ -64,6 +73,18 @@ export class ContentRegistry {
     const chapterSlug = chapter ? chapter.slug.toLowerCase() : validatedMeta.chapterId.toLowerCase();
     const key = `${subjectSlug}/${chapterSlug}/${validatedMeta.slug.toLowerCase()}`;
     this.topicsBySlug.set(key, validatedMeta.id);
+
+    if (chapterSlug === "solutions") {
+      this.topicsBySlug.set(
+        `${subjectSlug}/chapter-01/${validatedMeta.slug.toLowerCase()}`,
+        validatedMeta.id
+      );
+    } else if (chapterSlug === "chapter-01" && validatedMeta.chapterId === "chem-c01") {
+      this.topicsBySlug.set(
+        `${subjectSlug}/solutions/${validatedMeta.slug.toLowerCase()}`,
+        validatedMeta.id
+      );
+    }
 
     if (loader) {
       this.topicLoaders.set(validatedMeta.id, loader);
@@ -246,15 +267,13 @@ contentRegistry.registerSubject({
   chapterIds: ["chem-c01"],
 });
 
-contentRegistry.registerChapter({
-  id: "chem-c01",
-  subjectId: "chemistry",
-  slug: "chapter-01",
-  title: "Solutions",
-  order: 1,
-  description: "Types of solutions, concentration terms, Raoult's law, and colligative properties.",
-  topicIds: [], // Empty: unauthored
-});
+contentRegistry.registerChapter(chemistryChapter01);
+
+// Register Demo Topic for Chemistry (Solutions)
+contentRegistry.registerTopic(
+  topic01Content.metadata,
+  () => topic01Content
+);
 
 contentRegistry.registerSubject({
   id: "mathematics",

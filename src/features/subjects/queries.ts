@@ -1,36 +1,49 @@
 import { db } from "@/lib/db";
-import { subjects, chapters, topics } from "@/lib/db/schema";
-import { eq, and, asc } from "drizzle-orm";
-import { ChapterDetail, ChapterWithTopics, TopicDetail } from "./types";
+import { subjects } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { contentRegistry } from "@/content/registry";
+import { ChapterDetail, ChapterWithTopics, TopicDetail, TopicListItem } from "./types";
 
 /**
  * Fetches all published chapters for a given subject.
+ * Subject publication status is verified against the database catalog when available,
+ * while chapters and topics are resolved strictly from the static ContentRegistry.
  */
 export async function getSubjectChapters(
   subjectSlug: string
 ): Promise<ChapterDetail[]> {
   try {
-    const [subject] = await db
-      .select()
-      .from(subjects)
-      .where(and(eq(subjects.slug, subjectSlug), eq(subjects.isPublished, true)))
-      .limit(1);
+    const regSubject = contentRegistry.getSubject(subjectSlug);
+    if (!regSubject) {
+      return [];
+    }
 
-    if (!subject) return [];
+    // Verify against DB subject catalog if record exists
+    try {
+      const [dbSubject] = await db
+        .select({ isPublished: subjects.isPublished })
+        .from(subjects)
+        .where(eq(subjects.slug, subjectSlug))
+        .limit(1);
 
-    return await db
-      .select({
-        id: chapters.id,
-        subjectId: chapters.subjectId,
-        name: chapters.name,
-        slug: chapters.slug,
-        description: chapters.description,
-        displayOrder: chapters.displayOrder,
-        isPublished: chapters.isPublished,
-      })
-      .from(chapters)
-      .where(and(eq(chapters.subjectId, subject.id), eq(chapters.isPublished, true)))
-      .orderBy(asc(chapters.displayOrder));
+      if (dbSubject && !dbSubject.isPublished) {
+        return [];
+      }
+    } catch {
+      // If DB is offline/unseeded in dev/test, fallback cleanly to code registry
+    }
+
+    const regChapters = contentRegistry.getChaptersBySubject(regSubject.id);
+
+    return regChapters.map((c) => ({
+      id: c.id,
+      subjectId: c.subjectId,
+      name: c.title,
+      slug: c.slug,
+      description: c.description ?? null,
+      displayOrder: c.order,
+      isPublished: true,
+    }));
   } catch (err) {
     console.error("Error fetching subject chapters:", err);
     return [];
@@ -38,59 +51,63 @@ export async function getSubjectChapters(
 }
 
 /**
- * Fetches a chapter and all its published topics in display_order.
+ * Fetches a chapter and all its topics in display_order.
+ * Resolves curriculum structures strictly from ContentRegistry.
  */
 export async function getChapterWithTopics(
   subjectSlug: string,
   chapterSlug: string
 ): Promise<ChapterWithTopics | null> {
   try {
-    // 1. Fetch Subject
-    const [subject] = await db
-      .select()
-      .from(subjects)
-      .where(and(eq(subjects.slug, subjectSlug), eq(subjects.isPublished, true)))
-      .limit(1);
-
-    if (!subject) {
+    const regSubject = contentRegistry.getSubject(subjectSlug);
+    if (!regSubject) {
       return null;
     }
 
-    // 2. Fetch Chapter
-    const [chapter] = await db
-      .select()
-      .from(chapters)
-      .where(
-        and(
-          eq(chapters.subjectId, subject.id),
-          eq(chapters.slug, chapterSlug),
-          eq(chapters.isPublished, true)
-        )
-      )
-      .limit(1);
-
-    if (!chapter) {
+    const regChapter = contentRegistry.getChapter(subjectSlug, chapterSlug);
+    if (!regChapter) {
       return null;
     }
 
-    // 3. Fetch Published Topics ordered by display_order
-    const topicRecords = await db
-      .select()
-      .from(topics)
-      .where(and(eq(topics.chapterId, chapter.id), eq(topics.isPublished, true)))
-      .orderBy(asc(topics.displayOrder));
+    // Verify against DB subject catalog if record exists
+    try {
+      const [dbSubject] = await db
+        .select({ isPublished: subjects.isPublished })
+        .from(subjects)
+        .where(eq(subjects.slug, subjectSlug))
+        .limit(1);
+
+      if (dbSubject && !dbSubject.isPublished) {
+        return null;
+      }
+    } catch {
+      // DB check optional in offline environments
+    }
+
+    const regTopics = contentRegistry.getTopicsByChapter(regChapter.id);
+    const topicsList: TopicListItem[] = regTopics.map((t) => ({
+      id: t.id,
+      chapterId: t.chapterId,
+      name: t.title,
+      slug: t.slug,
+      description: t.description ?? null,
+      displayOrder: t.order,
+      isPublished: true,
+      createdAt: null,
+      updatedAt: null,
+    }));
 
     return {
-      id: chapter.id,
-      subjectId: chapter.subjectId,
-      name: chapter.name,
-      slug: chapter.slug,
-      description: chapter.description,
-      displayOrder: chapter.displayOrder,
-      isPublished: chapter.isPublished,
-      subjectName: subject.name,
-      subjectSlug: subject.slug,
-      topics: topicRecords,
+      id: regChapter.id,
+      subjectId: regChapter.subjectId,
+      name: regChapter.title,
+      slug: regChapter.slug,
+      description: regChapter.description ?? null,
+      displayOrder: regChapter.order,
+      isPublished: true,
+      subjectName: regSubject.title,
+      subjectSlug: regSubject.slug,
+      topics: topicsList,
     };
   } catch (err) {
     console.error("Error fetching chapter with topics:", err);

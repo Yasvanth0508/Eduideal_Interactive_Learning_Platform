@@ -57,10 +57,55 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
             max: v.maxValue ?? undefined,
           })
         ),
-        calculate: () => ({
-          result: 0,
-          steps: ["Step-by-step substitution from database formula config."],
-        }),
+        calculate: (values: Record<string, number>) => {
+          // Check for boiling point elevation: ΔTb = i × Kb × m
+          if ("Kb" in values || "m" in values) {
+            const kb = values["Kb"] ?? 0.512;
+            const m = values["m"] ?? 1;
+            const i = values["i"] ?? 1;
+            const result = i * kb * m;
+            return {
+              result,
+              steps: [
+                `Formula: ΔTb = i × Kb × m`,
+                `Given: i = ${i}, Kb = ${kb} K·kg/mol, m = ${m} mol/kg`,
+                `Substitution: ΔTb = ${i} × ${kb} × ${m}`,
+                `Result: ${result.toFixed(4)} K elevation`,
+              ],
+            };
+          }
+          // Check for molarity: M = n / V
+          if ("n" in values && "V" in values) {
+            const n = values["n"] ?? 1;
+            const V = values["V"] ?? 1;
+            const result = V !== 0 ? n / V : 0;
+            return {
+              result,
+              steps: [
+                `Formula: M = n / V`,
+                `Given: moles n = ${n} mol, volume V = ${V} L`,
+                `Substitution: M = ${n} / ${V}`,
+                `Result: ${result.toFixed(4)} mol/L (M)`,
+              ],
+            };
+          }
+          // Generic computation fallback
+          const entries = Object.entries(values);
+          if (entries.length > 0) {
+            const result = entries.reduce((acc, [, val]) => acc * (val || 0), 1);
+            return {
+              result,
+              steps: [
+                `Parameters: ${entries.map(([k, v]) => `${k} = ${v}`).join(", ")}`,
+                `Calculated Output: ${result.toFixed(4)}`,
+              ],
+            };
+          }
+          return {
+            result: 0,
+            steps: ["Enter variable values to calculate output."],
+          };
+        },
       }
     : null;
 

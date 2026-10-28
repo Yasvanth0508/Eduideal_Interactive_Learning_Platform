@@ -2,18 +2,23 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import * as schema from "@/lib/db/schema";
 
 // ==========================================
-// 1. Roles and Enums
+// 1. Roles and Database Enums
 // ==========================================
 
 export type UserRole = (typeof schema.userRoleEnum.enumValues)[number];
-export type ContentBlockType = (typeof schema.contentBlockTypeEnum.enumValues)[number];
-export type QuestionType = (typeof schema.questionTypeEnum.enumValues)[number];
-export type DifficultyLevel = (typeof schema.difficultyLevelEnum.enumValues)[number];
-export type ProgressStatus = (typeof schema.progressStatusEnum.enumValues)[number];
 
 // ==========================================
-// 2. Database Model Types
+// 2. Dynamic Database Model Types
 // ==========================================
+
+export type Branch = InferSelectModel<typeof schema.branches>;
+export type NewBranch = InferInsertModel<typeof schema.branches>;
+
+export type Board = InferSelectModel<typeof schema.boards>;
+export type NewBoard = InferInsertModel<typeof schema.boards>;
+
+export type ClassEntity = InferSelectModel<typeof schema.classes>;
+export type NewClassEntity = InferInsertModel<typeof schema.classes>;
 
 export type User = InferSelectModel<typeof schema.users>;
 export type NewUser = InferInsertModel<typeof schema.users>;
@@ -21,68 +26,45 @@ export type NewUser = InferInsertModel<typeof schema.users>;
 export type Subject = InferSelectModel<typeof schema.subjects>;
 export type NewSubject = InferInsertModel<typeof schema.subjects>;
 
-export type Chapter = InferSelectModel<typeof schema.chapters>;
-export type NewChapter = InferInsertModel<typeof schema.chapters>;
-
-export type Topic = InferSelectModel<typeof schema.topics>;
-export type NewTopic = InferInsertModel<typeof schema.topics>;
-
-export type ContentBlock = InferSelectModel<typeof schema.contentBlocks>;
-export type NewContentBlock = InferInsertModel<typeof schema.contentBlocks>;
-
-export type MediaAsset = InferSelectModel<typeof schema.mediaAssets>;
-export type VideoAsset = InferSelectModel<typeof schema.videoAssets>;
-export type ThreeDAsset = InferSelectModel<typeof schema.threeDAssets>;
-
-export type FormulaConfig = InferSelectModel<typeof schema.formulaConfigs>;
-export type FormulaVariable = InferSelectModel<typeof schema.formulaVariables>;
-
-export type GraphConfig = InferSelectModel<typeof schema.graphConfigs>;
-
-export type Question = InferSelectModel<typeof schema.questions>;
-export type QuestionOption = InferSelectModel<typeof schema.questionOptions>;
-
 export type StudentSubject = InferSelectModel<typeof schema.studentSubjects>;
-export type StudentProgress = InferSelectModel<typeof schema.studentProgress>;
+export type NewStudentSubject = InferInsertModel<typeof schema.studentSubjects>;
+
+export type TopicNote = InferSelectModel<typeof schema.topicNotes>;
+export type NewTopicNote = InferInsertModel<typeof schema.topicNotes>;
+
+export type TopicBookmark = InferSelectModel<typeof schema.topicBookmarks>;
+export type NewTopicBookmark = InferInsertModel<typeof schema.topicBookmarks>;
+
+// Backward-compatible alias
+export type StudentNote = TopicNote;
 
 // ==========================================
-// 3. Content Block Payload Schemas
+// 3. Static Educational Content Types (Re-exported from content.ts)
 // ==========================================
 
-export interface TheoryBlockContent {
-  markdown: string;
-  readingTimeMinutes?: number;
-}
-
-export interface ImageBlockContent {
-  url: string;
-  altText: string;
-  caption?: string;
-  aspectRatio?: string;
-}
-
-export interface GraphBlockConfig {
-  xVariable: string;
-  yVariable: string;
-  formula?: string;
-  minX?: number;
-  maxX?: number;
-  step?: number;
-  dataPoints?: Array<[number, number]>;
-}
-
-export interface ThreeDSimulationConfig {
-  simulationType: string;
-  maxParticles?: number;
-  defaultSpeed?: number;
-  allowSpeedControl?: boolean;
-  allowChargeControl?: boolean;
-  parameters?: Record<string, unknown>;
-}
-
-export interface VideoBlockContent {
-  videoUrl: string;
-  thumbnailUrl?: string;
-  durationSeconds?: number;
-  captionsUrl?: string;
-}
+export type {
+  ContentBlockType,
+  SubjectMetadata,
+  ChapterMetadata,
+  TopicMetadata,
+  TopicContent,
+  ContentBlock,
+  ContentBlockWithDetails,
+  TheoryBlock,
+  TheoryBlockContent,
+  ImageBlock,
+  ImageBlockData,
+  FormulaBlock,
+  FormulaBlockData,
+  FormulaVariableItem,
+  GraphBlock,
+  GraphBlockData,
+  ThreeDBlock,
+  ThreeDBlockData,
+  VideoBlock,
+  VideoBlockData,
+  QuestionsBlock,
+  QuestionsBlockData,
+  QuestionItem,
+  QuestionOptionItem,
+} from "./content";
