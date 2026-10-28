@@ -4,6 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RotateCcw, Play, Pause, Box } from "lucide-react";
+import {
+  SubsectionTitle,
+  CaptionText,
+} from "@/components/ui/typography";
 
 export interface ThreeDSceneController {
   update?: (time: number, delta: number) => void;
@@ -64,48 +68,47 @@ export function ThreeDCanvas({
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
+      alpha: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, canvasHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // 3. OrbitControls
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.autoRotate = isAutoRotating;
-    controls.autoRotateSpeed = 1.5;
-    controls.maxDistance = 25;
-    controls.minDistance = 1.5;
+    controls.autoRotateSpeed = 1.2;
+    controls.minDistance = 2;
+    controls.maxDistance = 20;
     controlsRef.current = controls;
 
-    // 4. Initialize child scene logic
+    // 4. Initialize Scene Content
     const controller = initScene(scene, camera, renderer);
     controllerRef.current = controller;
 
-    // 5. Animation Loop
+    // 5. Animation loop
     let animationFrameId: number;
-    let lastTime = performance.now();
+    const clock = new THREE.Clock();
 
-    const animate = (now: number) => {
+    const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const delta = (now - lastTime) * 0.001;
-      lastTime = now;
+      const delta = clock.getDelta();
+      const time = clock.getElapsedTime();
 
       controls.update();
 
-      if (controller && controller.update) {
-        controller.update(now * 0.001, delta);
+      if (controller?.update) {
+        controller.update(time, delta);
       }
 
       renderer.render(scene, camera);
     };
 
-    animationFrameId = requestAnimationFrame(animate);
+    animate();
 
-    // 6. Responsive Resize Handling
+    // 6. Responsive Resize Observer
     const handleResize = () => {
       if (!container) return;
       const newWidth = container.clientWidth;
@@ -114,38 +117,22 @@ export function ThreeDCanvas({
       renderer.setSize(newWidth, canvasHeight);
     };
 
-    const resizeObserver = new ResizeObserver(() => handleResize());
+    const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
-    // 7. Cleanup on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       controls.dispose();
 
-      if (controller && controller.cleanup) {
+      if (controller?.cleanup) {
         controller.cleanup();
       }
 
-      // Dispose scene objects and geometries
-      scene.traverse((object) => {
-        if ((object as THREE.Mesh).isMesh) {
-          const mesh = object as THREE.Mesh;
-          if (mesh.geometry) mesh.geometry.dispose();
-          if (mesh.material) {
-            if (Array.isArray(mesh.material)) {
-              mesh.material.forEach((mat) => mat.dispose());
-            } else {
-              mesh.material.dispose();
-            }
-          }
-        }
-      });
-
       renderer.dispose();
+      scene.clear();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initScene, cameraPosition, height]);
+  }, [height, cameraPosition, initScene, isAutoRotating]);
 
   // Sync auto-rotation state
   useEffect(() => {
@@ -169,7 +156,7 @@ export function ThreeDCanvas({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#E5E5E5] mb-6">
         <div>
           <span
-            className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 mb-1.5"
+            className="type-metadata font-mono font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 mb-1.5"
             style={{
               background: "var(--brand-tint)",
               color: "var(--brand)",
@@ -179,15 +166,15 @@ export function ThreeDCanvas({
             <Box className="w-3.5 h-3.5" />
             <span>{badge}</span>
           </span>
-          <h4 className="text-xl font-bold text-black tracking-tight">{title}</h4>
-          {subtitle && <p className="text-xs text-[#555555] mt-0.5">{subtitle}</p>}
+          <SubsectionTitle className="tracking-tight">{title}</SubsectionTitle>
+          {subtitle && <CaptionText className="text-[#555555] mt-0.5">{subtitle}</CaptionText>}
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAutoRotating(!isAutoRotating)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl type-button transition-all flex items-center gap-1.5 cursor-pointer ${
               isAutoRotating
                 ? "bg-neutral-900 text-white"
                 : "bg-neutral-100 text-[#555555] hover:bg-neutral-200"
@@ -216,7 +203,7 @@ export function ThreeDCanvas({
         <canvas ref={canvasRef} className="w-full h-full block cursor-grab active:cursor-grabbing" />
 
         {/* Interactive Helper Overlay */}
-        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-mono text-neutral-300 pointer-events-none flex items-center gap-2">
+        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 type-metadata font-mono text-neutral-300 pointer-events-none flex items-center gap-2">
           <span>🖱️ Left-Click: Rotate</span>
           <span>•</span>
           <span>Right-Click: Pan</span>

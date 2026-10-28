@@ -3,6 +3,7 @@
 import React from "react";
 import { Video, Clock } from "lucide-react";
 import { VideoBlock, VideoBlockData, ContentBlockWithDetails } from "@/types/content";
+import { CaptionText, MetadataText } from "@/components/ui/typography";
 
 interface VideoBlockRendererProps {
   block: VideoBlock | ContentBlockWithDetails;
@@ -55,7 +56,7 @@ export function VideoBlockRenderer({ block }: VideoBlockRendererProps) {
 
   if (!videoData || !videoData.url) {
     return (
-      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center text-sm text-[#555555] flex flex-col items-center gap-3">
+      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center type-caption text-[#555555] flex flex-col items-center gap-3">
         <Video className="w-8 h-8 text-slate-400" />
         <p>No video source specified for this block.</p>
       </div>
@@ -73,15 +74,15 @@ export function VideoBlockRenderer({ block }: VideoBlockRendererProps) {
       <div className="px-6 py-4 border-b border-[#E5E5E5] bg-[#FAFAFA] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Video className="w-4 h-4 text-[#C0222E]" />
-          <h3 className="text-sm font-bold text-black uppercase tracking-wide">
+          <h3 className="type-caption font-bold text-black uppercase tracking-wide">
             {title || block.title || "Video Lesson"}
           </h3>
         </div>
         {formattedDuration && (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 flex items-center gap-1">
+          <MetadataText className="font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 flex items-center gap-1">
             <Clock className="w-3 h-3" />
             <span>{formattedDuration}</span>
-          </span>
+          </MetadataText>
         )}
       </div>
 
@@ -104,19 +105,17 @@ export function VideoBlockRenderer({ block }: VideoBlockRendererProps) {
           />
         ) : (
           <video
+            src={url}
             controls
-            className="w-full h-full object-contain"
-            preload="metadata"
-          >
-            <source src={url} />
-            Your browser does not support the video tag.
-          </video>
+            className="w-full h-full object-cover"
+            title={title || "Direct video player"}
+          />
         )}
       </div>
 
-      {(caption || block.description) && (
-        <div className="px-6 py-3.5 bg-white border-t border-[#E5E5E5] text-xs text-[#555555] text-center font-medium">
-          {caption || block.description}
+      {caption && (
+        <div className="px-6 py-3.5 bg-white border-t border-[#E5E5E5] text-center font-medium">
+          <CaptionText className="text-[#555555]">{caption}</CaptionText>
         </div>
       )}
     </div>

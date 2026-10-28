@@ -3,6 +3,13 @@
 import React, { useState } from "react";
 import { Calculator, RotateCcw, ArrowRight, CheckCircle2 } from "lucide-react";
 import { ContentBlockWithDetails, FormulaBlock, FormulaBlockData } from "@/types/content";
+import { MathFormula } from "@/components/ui/math-formula";
+import {
+  SubsectionTitle,
+  CaptionText,
+  MetadataText,
+  Heading4,
+} from "@/components/ui/typography";
 
 export interface FormulaVariableInput {
   symbol: string;
@@ -17,7 +24,7 @@ export interface FormulaVariableInput {
 
 export interface FormulaConfigPayload {
   formulaName: string;
-  expression: string; // e.g. "ΔTb = Kb × m"
+  expression: string; // e.g. "ΔTb = Kb × m" or "\Delta T_b = i \times K_b \times m"
   description: string;
   resultLabel: string;
   resultUnit: string;
@@ -89,21 +96,15 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
               ],
             };
           }
-          // Generic computation fallback
+          // Fallback generic multiplier
           const entries = Object.entries(values);
-          if (entries.length > 0) {
-            const result = entries.reduce((acc, [, val]) => acc * (val || 0), 1);
-            return {
-              result,
-              steps: [
-                `Parameters: ${entries.map(([k, v]) => `${k} = ${v}`).join(", ")}`,
-                `Calculated Output: ${result.toFixed(4)}`,
-              ],
-            };
-          }
+          const mult = entries.reduce((acc, [, val]) => acc * (val || 1), 1);
           return {
-            result: 0,
-            steps: ["Enter variable values to calculate output."],
+            result: mult,
+            steps: [
+              `Calculated based on product of ${entries.length} variables.`,
+              `Result: ${mult.toFixed(2)}`,
+            ],
           };
         },
       }
@@ -160,7 +161,7 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
+              className="type-metadata font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
               style={{
                 background: "var(--brand-tint)",
                 color: "var(--brand)",
@@ -172,43 +173,45 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
             </span>
           </div>
 
-          <h3 className="text-xl font-bold text-black tracking-tight">
+          <SubsectionTitle className="tracking-tight">
             {config.formulaName}
-          </h3>
-          <p className="text-xs sm:text-sm text-[#555555] mt-0.5">
+          </SubsectionTitle>
+          <CaptionText className="text-[#555555] mt-0.5">
             {config.description}
-          </p>
+          </CaptionText>
         </div>
 
         <button
           onClick={handleReset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAFAFA] hover:bg-slate-100 text-xs font-bold text-slate-700 border border-[#E5E5E5] transition-all self-start sm:self-center"
+          className="type-button flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAFAFA] hover:bg-slate-100 text-slate-700 border border-[#E5E5E5] transition-all self-start sm:self-center cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5 text-[#C0222E]" />
           <span>Reset Values</span>
         </button>
       </div>
 
-      {/* Formula Mathematical Display */}
+      {/* Formula Mathematical Display (KaTeX) */}
       <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center">
-        <span className="text-xs font-mono font-bold text-[#555555] uppercase tracking-wider block mb-1">
+        <MetadataText className="font-mono font-bold text-[#555555] uppercase tracking-wider block mb-1">
           Governing Equation
-        </span>
-        <div className="text-xl sm:text-2xl font-black font-mono tracking-wide text-black selection:bg-[#C0222E]">
-          {config.expression}
-        </div>
+        </MetadataText>
+        <MathFormula
+          expression={config.expression}
+          display={true}
+          className="type-math text-xl sm:text-2xl font-bold"
+        />
       </div>
 
       {/* Two Column Grid: Inputs & Result */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Variables Sliders & Inputs */}
         <div className="space-y-4">
-          <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-black flex items-center gap-2">
+          <Heading4 className="type-metadata font-bold font-mono uppercase tracking-wider text-black flex items-center gap-2">
             <span>Input Variables</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-normal">
               Adjust sliders or type values
             </span>
-          </h4>
+          </Heading4>
 
           {config.variables.map((variable) => {
             const val = inputs[variable.symbol] ?? variable.defaultValue;
@@ -221,9 +224,9 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
                 key={variable.symbol}
                 className="p-3.5 rounded-2xl border border-[#E5E5E5] bg-white shadow-2xs space-y-2"
               >
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between type-caption">
                   <span className="font-bold text-black flex items-center gap-1.5">
-                    <span className="font-mono text-[#C0222E] bg-rose-50 px-1.5 py-0.5 rounded">
+                    <span className="type-code text-[#C0222E] bg-rose-50 px-1.5 py-0.5 rounded">
                       {variable.symbol}
                     </span>
                     <span>{variable.label}</span>
@@ -238,15 +241,14 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
                       onChange={(e) =>
                         handleInputChange(variable.symbol, e.target.value)
                       }
-                      className="w-20 px-2 py-1 text-right font-mono text-xs border border-[#E5E5E5] rounded-lg focus:outline-none focus:border-[#C0222E]"
+                      className="w-20 px-2 py-1 text-right border border-[#E5E5E5] rounded-lg type-code bg-[#FAFAFA] text-black focus:outline-none focus:border-[#C0222E]"
                     />
-                    <span className="text-[11px] font-mono text-[#555555] min-w-[28px]">
+                    <MetadataText className="text-slate-500 font-medium w-8">
                       {variable.unit}
-                    </span>
+                    </MetadataText>
                   </div>
                 </div>
 
-                {/* Slider */}
                 <input
                   type="range"
                   min={min}
@@ -256,14 +258,8 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
                   onChange={(e) =>
                     handleInputChange(variable.symbol, e.target.value)
                   }
-                  className="w-full accent-[#C0222E] h-1.5 bg-slate-100 rounded-lg cursor-pointer"
+                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#C0222E]"
                 />
-
-                {variable.description && (
-                  <p className="text-[11px] text-[#555555]">
-                    {variable.description}
-                  </p>
-                )}
               </div>
             );
           })}
@@ -271,14 +267,14 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
 
         {/* Calculation Result & Steps */}
         <div className="space-y-4">
-          <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-black">
+          <Heading4 className="type-metadata font-bold font-mono uppercase tracking-wider text-black">
             Calculated Output
-          </h4>
+          </Heading4>
 
           <div className="p-6 rounded-2xl bg-rose-50/50 border border-rose-200 text-center space-y-2">
-            <span className="text-xs font-mono font-bold text-[#C0222E] uppercase tracking-wider block">
+            <MetadataText className="font-mono font-bold text-[#C0222E] uppercase tracking-wider block">
               {config.resultLabel || "Calculated Result"}
-            </span>
+            </MetadataText>
 
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-4xl sm:text-5xl font-black font-mono text-rose-950 tracking-tight">
@@ -288,7 +284,7 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
                     : calculationResult.result.toFixed(4)
                   : calculationResult.result}
               </span>
-              <span className="text-sm sm:text-base font-bold font-mono text-rose-700">
+              <span className="type-caption font-bold font-mono text-rose-700">
                 {config.resultUnit}
               </span>
             </div>
@@ -297,11 +293,11 @@ export function FormulaBlockRenderer({ block, config: propConfig }: FormulaBlock
           {/* Step-by-Step Substitution */}
           {calculationResult.steps && calculationResult.steps.length > 0 && (
             <div className="p-4 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] space-y-2.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-black uppercase tracking-wider">
+              <div className="flex items-center gap-1.5 type-metadata font-bold text-black uppercase tracking-wider">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Step-by-Step Evaluation</span>
               </div>
-              <div className="space-y-1.5 text-xs font-mono text-slate-700">
+              <div className="space-y-1.5 type-code text-slate-700">
                 {calculationResult.steps.map((step, idx) => (
                   <div key={idx} className="flex items-start gap-2">
                     <ArrowRight className="w-3 h-3 text-slate-400 mt-1 flex-shrink-0" />

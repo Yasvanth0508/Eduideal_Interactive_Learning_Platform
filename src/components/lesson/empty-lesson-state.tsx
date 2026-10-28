@@ -70,13 +70,13 @@ export function EmptyLessonState({
               <span>CONTENT PREPARATION PHASE</span>
             </span>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight">
+            <h2 className="type-h2 font-bold text-black tracking-tight">
               {title || defaultTitle}
             </h2>
 
             {/* Context breadcrumb chip if names exist */}
             {(subjectName || chapterName || topicName) && (
-              <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs text-[#555555] font-medium">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 type-metadata text-[#555555] font-medium">
                 {subjectName && <span className="capitalize">{subjectName}</span>}
                 {chapterName && (
                   <>
@@ -93,7 +93,7 @@ export function EmptyLessonState({
               </div>
             )}
 
-            <p className="text-sm text-[#555555] leading-relaxed max-w-lg mx-auto">
+            <p className="type-caption text-[#555555] leading-relaxed max-w-lg mx-auto">
               {description || defaultDescription}
             </p>
           </div>
@@ -102,7 +102,7 @@ export function EmptyLessonState({
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             <Link
               href={backHref}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl type-button text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4 text-[#C0222E]" />
               <span>{backLabel || defaultBackLabel}</span>
@@ -110,7 +110,7 @@ export function EmptyLessonState({
 
             <Link
               href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-xs hover:opacity-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl type-button text-white transition-all active:scale-95 shadow-xs hover:opacity-95"
               style={{ background: "var(--brand)" }}
             >
               <BookOpen className="w-4 h-4" />

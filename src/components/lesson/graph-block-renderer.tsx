@@ -4,12 +4,17 @@ import React, { useState, useMemo, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { LineChart, Sliders, Info } from "lucide-react";
 import { ContentBlockWithDetails, GraphBlock } from "@/types/content";
+import {
+  SubsectionTitle,
+  CaptionText,
+  Heading4,
+} from "@/components/ui/typography";
 
 // Dynamically import ReactECharts to avoid SSR issues with window/canvas
 const ReactECharts = dynamic(() => import("echarts-for-react"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[360px] flex items-center justify-center bg-[#FAFAFA] rounded-2xl border border-[#E5E5E5] text-xs text-[#555555]">
+    <div className="w-full h-[360px] flex items-center justify-center bg-[#FAFAFA] rounded-2xl border border-[#E5E5E5] type-caption text-[#555555]">
       Loading scientific graph...
     </div>
   ),
@@ -116,7 +121,7 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
+              className="type-metadata font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
               style={{
                 background: "var(--brand-tint)",
                 color: "var(--brand)",
@@ -128,12 +133,12 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
             </span>
           </div>
 
-          <h4 className="text-xl font-bold text-black tracking-tight">
+          <SubsectionTitle className="tracking-tight">
             {config.title}
-          </h4>
-          <p className="text-xs sm:text-sm text-[#555555] mt-0.5">
+          </SubsectionTitle>
+          <CaptionText className="text-[#555555] mt-0.5">
             {config.description}
-          </p>
+          </CaptionText>
         </div>
       </div>
 
@@ -142,10 +147,10 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
         {/* Interactive Parameter Controls (if any) */}
         {config.params && config.params.length > 0 && (
           <div className="space-y-4">
-            <h5 className="text-xs font-bold font-mono uppercase tracking-wider text-black flex items-center gap-1.5">
+            <Heading4 className="type-metadata font-bold font-mono uppercase tracking-wider text-black flex items-center gap-1.5">
               <Sliders className="w-3.5 h-3.5 text-[#C0222E]" />
               <span>Graph Parameters</span>
-            </h5>
+            </Heading4>
 
             <div className="space-y-3">
               {config.params.map((param) => {
@@ -155,9 +160,9 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
                     key={param.key}
                     className="p-3.5 rounded-2xl border border-[#E5E5E5] bg-[#FAFAFA] space-y-2"
                   >
-                    <div className="flex items-center justify-between text-xs font-semibold text-black">
+                    <div className="flex items-center justify-between type-caption font-semibold text-black">
                       <span>{param.label}</span>
-                      <span className="font-mono text-[#C0222E]">
+                      <span className="type-code text-[#C0222E]">
                         {currentVal} {param.unit}
                       </span>
                     </div>
@@ -174,7 +179,7 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
                       className="w-full accent-[#C0222E] h-1.5 bg-slate-200 rounded-lg cursor-pointer"
                     />
 
-                    <div className="flex justify-between text-[10px] font-mono text-[#555555]">
+                    <div className="flex justify-between type-metadata font-mono text-[#555555]">
                       <span>
                         {param.min} {param.unit}
                       </span>
@@ -187,23 +192,20 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
               })}
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-[#555555] flex items-start gap-2">
-              <Info className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-[#E5E5E5] flex items-start gap-2 type-caption text-slate-600">
+              <Info className="w-4 h-4 text-[#C0222E] flex-shrink-0 mt-0.5" />
               <span>
-                Move sliders to observe real-time curves shift according to the
-                underlying equations.
+                Move sliders to observe real-time curves and slope changes.
               </span>
             </div>
           </div>
         )}
 
-        {/* ECharts Visual Canvas Container */}
+        {/* ECharts Canvas Container */}
         <div
-          className={`w-full bg-white rounded-2xl border border-[#E5E5E5] p-2 shadow-2xs ${
-            config.params && config.params.length > 0
-              ? "lg:col-span-2"
-              : "lg:col-span-3"
-          }`}
+          className={`${
+            config.params && config.params.length > 0 ? "lg:col-span-2" : "lg:col-span-3"
+          } rounded-2xl border border-[#E5E5E5] bg-[#FAFAFA] p-3 sm:p-5`}
         >
           {isMounted ? (
             <ReactECharts
@@ -213,10 +215,19 @@ export function GraphBlockRenderer({ block, config: propConfig }: GraphBlockRend
               lazyUpdate={true}
             />
           ) : (
-            <div className="w-full h-[380px] flex items-center justify-center bg-[#FAFAFA] rounded-xl text-xs text-[#555555]">
-              Loading chart canvas...
+            <div className="w-full h-[380px] flex items-center justify-center type-caption text-[#555555]">
+              Initializing scientific graph visualization...
             </div>
           )}
+
+          <div className="mt-3 pt-3 border-t border-[#E5E5E5] flex flex-wrap items-center justify-between type-metadata text-[#555555] gap-2">
+            <span>
+              X-Axis: <strong className="text-black">{config.xAxisLabel || "Independent"}</strong>
+            </span>
+            <span>
+              Y-Axis: <strong className="text-black">{config.yAxisLabel || "Dependent"}</strong>
+            </span>
+          </div>
         </div>
       </div>
     </div>

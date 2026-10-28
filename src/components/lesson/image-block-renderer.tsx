@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ImageIcon, AlertCircle } from "lucide-react";
 import { ImageBlock, ImageBlockData, ContentBlockWithDetails } from "@/types/content";
+import { CaptionText, MetadataText } from "@/components/ui/typography";
 
 interface ImageBlockRendererProps {
   block: ImageBlock | ContentBlockWithDetails;
@@ -19,7 +20,7 @@ export function ImageBlockRenderer({ block }: ImageBlockRendererProps) {
 
   if (!imageData || !imageData.url) {
     return (
-      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center text-sm text-[#555555] flex flex-col items-center gap-3">
+      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center type-caption text-[#555555] flex flex-col items-center gap-3">
         <ImageIcon className="w-8 h-8 text-slate-400" />
         <p>No image URL specified for this block.</p>
       </div>
@@ -34,12 +35,12 @@ export function ImageBlockRenderer({ block }: ImageBlockRendererProps) {
         <div className="px-6 py-4 border-b border-[#E5E5E5] bg-[#FAFAFA] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-[#C0222E]" />
-            <h3 className="text-sm font-bold text-black uppercase tracking-wide">
+            <h3 className="type-caption font-bold text-black uppercase tracking-wide">
               {block.title}
             </h3>
           </div>
           {block.description && (
-            <span className="text-xs text-[#555555]">{block.description}</span>
+            <MetadataText className="text-[#555555]">{block.description}</MetadataText>
           )}
         </div>
       )}
@@ -52,17 +53,17 @@ export function ImageBlockRenderer({ block }: ImageBlockRendererProps) {
         }}
       >
         {!isLoaded && !hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-100 animate-pulse text-xs text-[#555555]">
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-100 animate-pulse type-caption text-[#555555]">
             <ImageIcon className="w-6 h-6 mr-2 opacity-50 animate-bounce" />
             <span>Loading image...</span>
           </div>
         )}
 
         {hasError ? (
-          <div className="p-8 text-center text-xs text-[#555555] flex flex-col items-center gap-2">
+          <div className="p-8 text-center type-caption text-[#555555] flex flex-col items-center gap-2">
             <AlertCircle className="w-6 h-6 text-amber-500" />
             <p>Unable to load image resource.</p>
-            <span className="text-[10px] text-slate-400 font-mono truncate max-w-xs">{url}</span>
+            <span className="type-metadata font-mono truncate max-w-xs">{url}</span>
           </div>
         ) : (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -81,8 +82,8 @@ export function ImageBlockRenderer({ block }: ImageBlockRendererProps) {
       </div>
 
       {caption && (
-        <figcaption className="px-6 py-3.5 bg-white border-t border-[#E5E5E5] text-xs text-[#555555] text-center font-medium">
-          {caption}
+        <figcaption className="px-6 py-3.5 bg-white border-t border-[#E5E5E5] text-center font-medium">
+          <CaptionText className="text-[#555555]">{caption}</CaptionText>
         </figcaption>
       )}
     </figure>

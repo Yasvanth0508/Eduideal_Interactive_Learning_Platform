@@ -17,7 +17,7 @@ export function ThreeDBlockRenderer({ block }: ThreeDBlockRendererProps) {
 
   if (!threeDData) {
     return (
-      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center text-sm text-[#555555] flex flex-col items-center gap-3">
+      <div className="w-full p-8 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] text-center type-caption text-[#555555] flex flex-col items-center gap-3">
         <Box className="w-8 h-8 text-slate-400" />
         <p>No 3D model configuration provided for this block.</p>
       </div>

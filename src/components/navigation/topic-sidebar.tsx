@@ -13,6 +13,7 @@ import {
   Layers,
 } from "lucide-react";
 import { TopicListItem } from "@/features/subjects/types";
+import { MetadataText } from "@/components/ui/typography";
 
 interface TopicSidebarProps {
   subjectSlug: string;
@@ -51,7 +52,7 @@ export function TopicSidebar({
       <div className="lg:hidden sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] px-4 py-2.5 flex items-center justify-between">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="flex items-center gap-2 text-xs font-semibold text-black bg-[#FAFAFA] hover:bg-slate-100 px-3 py-2 rounded-xl border border-[#E5E5E5] transition-all"
+          className="flex items-center gap-2 type-button text-black bg-[#FAFAFA] hover:bg-slate-100 px-3 py-2 rounded-xl border border-[#E5E5E5] transition-all cursor-pointer"
         >
           {isMobileOpen ? (
             <X className="w-4 h-4 text-[#C0222E]" />
@@ -63,7 +64,7 @@ export function TopicSidebar({
           </span>
         </button>
 
-        <span className="text-xs font-bold text-[#555555] tabular-nums">
+        <span className="type-metadata font-bold text-[#555555] tabular-nums">
           {progressPercent}% Complete
         </span>
       </div>
@@ -89,11 +90,11 @@ export function TopicSidebar({
         <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between gap-2">
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#555555] uppercase tracking-wider truncate">
+              <div className="flex items-center gap-1.5 type-metadata font-semibold text-[#555555] uppercase tracking-wider truncate">
                 <BookOpen className="w-3.5 h-3.5 text-[#C0222E] flex-shrink-0" />
                 <span className="truncate">{subjectName}</span>
               </div>
-              <h2 className="text-sm font-black text-black truncate mt-0.5">
+              <h2 className="type-caption font-bold text-black truncate mt-0.5">
                 {chapterName}
               </h2>
             </div>
@@ -124,7 +125,7 @@ export function TopicSidebar({
         {/* Progress Bar (Expanded Only) */}
         {!isCollapsed && (
           <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#E5E5E5]">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-[#555555] mb-1.5">
+            <div className="flex items-center justify-between type-metadata font-semibold text-[#555555] mb-1.5">
               <span>Chapter Progress</span>
               <span className="text-[#C0222E] tabular-nums">
                 {currentIndex + 1} of {topics.length} topics
@@ -152,7 +153,7 @@ export function TopicSidebar({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search topics..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl text-black placeholder:text-slate-400 focus:outline-none focus:border-[#C0222E] transition-colors"
+                className="w-full pl-8 pr-3 py-1.5 type-caption bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl text-black placeholder:text-slate-400 focus:outline-none focus:border-[#C0222E] transition-colors"
               />
             </div>
           </div>
@@ -172,63 +173,57 @@ export function TopicSidebar({
                 onClick={() => setIsMobileOpen(false)}
                 title={isCollapsed ? `${formattedNum}. ${t.name}` : undefined}
                 className={`
-                  group relative flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer
+                  group relative flex items-center gap-3 p-2.5 rounded-xl type-caption transition-all duration-150 cursor-pointer
                   ${
                     isActive
                       ? "bg-[#C0222E]/10 text-[#C0222E] border border-[#C0222E]/30 font-bold shadow-2xs"
-                      : "text-slate-700 hover:bg-[#FAFAFA] hover:text-black border border-transparent"
+                      : "text-slate-700 hover:bg-[#FAFAFA] hover:text-black border border-transparent font-medium"
                   }
                   ${isCollapsed ? "justify-center px-0" : ""}
                 `}
               >
-                {/* Topic Index Number Badge */}
-                <span
+                {/* Number Badge */}
+                <div
                   className={`
-                    w-7 h-7 rounded-lg flex items-center justify-center tabular-nums text-[11px] font-bold flex-shrink-0 transition-colors
+                    w-6 h-6 rounded-lg flex items-center justify-center font-mono type-metadata font-bold flex-shrink-0 transition-colors
                     ${
                       isActive
                         ? "bg-[#C0222E] text-white"
                         : isCompleted
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-[#FAFAFA] text-[#555555] border border-[#E5E5E5] group-hover:border-[#C0222E]/30"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-slate-100 text-slate-600 border border-[#E5E5E5] group-hover:bg-slate-200"
                     }
                   `}
                 >
-                  {isCompleted ? (
+                  {isCompleted && !isActive ? (
                     <CheckCircle2 className="w-3.5 h-3.5" />
                   ) : (
                     formattedNum
                   )}
-                </span>
+                </div>
 
-                {/* Topic Name & Info (Expanded Only) */}
+                {/* Topic Title & Subtitle */}
                 {!isCollapsed && (
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`truncate leading-snug ${
-                        isActive ? "text-[#C0222E] font-extrabold" : "text-slate-800"
-                      }`}
-                    >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate leading-snug">
                       {t.name}
                     </p>
-                    {t.description && (
-                      <p className="text-[10px] text-[#555555] truncate mt-0.5 font-normal">
-                        {t.description}
-                      </p>
-                    )}
+                    <MetadataText className="text-slate-600 flex items-center gap-2 mt-0.5">
+                      <span>12 mins</span>
+                      {isActive && (
+                        <span className="text-[#C0222E] font-semibold">
+                          &bull; Current Topic
+                        </span>
+                      )}
+                    </MetadataText>
                   </div>
-                )}
-
-                {/* Active Indicator Bar */}
-                {isActive && !isCollapsed && (
-                  <div className="w-1.5 h-4 bg-[#C0222E] rounded-full flex-shrink-0" />
                 )}
               </Link>
             );
           })}
 
           {filteredTopics.length === 0 && !isCollapsed && (
-            <div className="p-4 text-center text-xs text-[#555555]">
+            <div className="p-6 text-center type-caption text-[#555555]">
               No topics found matching &quot;{searchQuery}&quot;
             </div>
           )}
@@ -236,15 +231,17 @@ export function TopicSidebar({
 
         {/* Sidebar Footer */}
         {!isCollapsed && (
-          <div className="p-3 border-t border-[#E5E5E5] bg-[#FAFAFA] flex items-center justify-between text-[11px] text-[#555555]">
+          <div className="p-3 border-t border-[#E5E5E5] bg-[#FAFAFA]">
             <Link
               href={`/${subjectSlug}/${chapterSlug}`}
-              className="hover:text-black transition-colors font-medium flex items-center gap-1"
+              className="flex items-center justify-between type-caption font-semibold text-slate-700 hover:text-black p-2 rounded-lg hover:bg-white border border-transparent hover:border-[#E5E5E5] transition-all"
             >
-              <Layers className="w-3.5 h-3.5 text-[#C0222E]" />
-              <span>Chapter Overview</span>
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[#C0222E]" />
+                <span>Chapter Overview</span>
+              </div>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             </Link>
-            <span className="tabular-nums text-[10px]">{topics.length} Topics</span>
           </div>
         )}
       </aside>

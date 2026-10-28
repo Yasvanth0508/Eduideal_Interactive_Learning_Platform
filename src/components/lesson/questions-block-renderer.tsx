@@ -11,6 +11,12 @@ import {
   Award,
 } from "lucide-react";
 import { ContentBlockWithDetails, QuestionsBlock, QuestionItem, QuestionsBlockData } from "@/types/content";
+import {
+  SubsectionTitle,
+  CaptionText,
+  MetadataText,
+} from "@/components/ui/typography";
+import { MathText } from "@/components/ui/math-formula";
 
 interface QuestionsBlockRendererProps {
   block: QuestionsBlock | ContentBlockWithDetails;
@@ -72,7 +78,7 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
+              className="type-metadata font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5"
               style={{
                 background: "var(--brand-tint)",
                 color: "var(--brand)",
@@ -82,23 +88,23 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
               <HelpCircle className="w-3.5 h-3.5" />
               <span>SELF-ASSESSMENT PRACTICE</span>
             </span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+            <MetadataText className="font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
               {questionsList.length} Questions
-            </span>
+            </MetadataText>
           </div>
 
-          <h3 className="text-2xl font-black text-black tracking-tight">
+          <SubsectionTitle className="tracking-tight">
             {block.title || "Quick Practice"}
-          </h3>
-          <p className="text-xs sm:text-sm text-[#555555]">
+          </SubsectionTitle>
+          <CaptionText className="text-[#555555]">
             {block.description || "Test your understanding with CBSE-aligned questions."}
-          </p>
+          </CaptionText>
         </div>
 
         {/* Score Pill & Reset */}
         <div className="flex items-center gap-3 self-start sm:self-center">
           {mcqs.length > 0 && (
-            <div className="px-3.5 py-1.5 rounded-xl bg-slate-50 border border-[#E5E5E5] text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5 shadow-2xs">
+            <div className="px-3.5 py-1.5 rounded-xl bg-slate-50 border border-[#E5E5E5] type-metadata font-mono font-bold text-slate-700 flex items-center gap-1.5 shadow-2xs">
               <Award className="w-3.5 h-3.5 text-[#C0222E]" />
               <span>
                 MCQ Score: {correctCount}/{mcqs.length}
@@ -108,7 +114,7 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
 
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-black bg-white hover:bg-slate-50 border border-[#E5E5E5] transition-all cursor-pointer active:scale-95 shadow-2xs"
+            className="type-button inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-slate-600 hover:text-black bg-white hover:bg-slate-50 border border-[#E5E5E5] transition-all cursor-pointer active:scale-95 shadow-2xs"
             title="Reset answers"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -133,7 +139,7 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
               {/* Question Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-white border border-[#E5E5E5] flex items-center justify-center font-mono text-xs font-bold text-slate-700 flex-shrink-0">
+                  <span className="w-6 h-6 rounded-lg bg-white border border-[#E5E5E5] flex items-center justify-center font-mono type-metadata font-bold text-slate-700 flex-shrink-0">
                     {index + 1}
                   </span>
                   <span
@@ -152,7 +158,7 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
                 {!isMCQ && (
                   <button
                     onClick={() => toggleReveal(question.id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95"
+                    className="type-button inline-flex items-center gap-1.5 px-3 py-1 rounded-xl transition-all cursor-pointer active:scale-95"
                     style={{
                       background: isRevealed ? "var(--brand-tint)" : "#ffffff",
                       color: isRevealed ? "var(--brand)" : "#000000",
@@ -167,17 +173,18 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
                 )}
               </div>
 
-              {/* Question Text */}
-              <p className="text-sm sm:text-base font-bold text-black leading-relaxed">
-                {question.questionText}
-              </p>
+              {/* Question Text (16-17px according to README standard) */}
+              <div className="type-question text-black">
+                <MathText text={question.questionText} />
+              </div>
 
               {/* MCQ Options Rendering */}
               {isMCQ && question.options && (
-                <div className="grid grid-cols-1 gap-2.5 pt-1">
-                  {question.options.map((opt) => {
+                <div className="grid grid-cols-1 gap-3 pt-1">
+                  {question.options.map((opt, optIndex) => {
                     const isChosen = selectedOptionId === opt.id;
                     const isCorrect = opt.isCorrect;
+                    const optionLetter = String.fromCharCode(65 + optIndex);
 
                     let btnStyle = "bg-white border-[#E5E5E5] hover:border-slate-300 text-slate-800";
 
@@ -195,19 +202,22 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
                       <button
                         key={opt.id}
                         onClick={() => handleSelectOption(question.id, opt.id)}
-                        className={`p-3.5 rounded-xl border text-left text-xs sm:text-sm transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                        className={`p-3.5 rounded-xl border text-left type-body transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
                       >
                         <span className="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 bg-slate-50">
-                          {String.fromCharCode(64 + opt.displayOrder)}
+                          {optionLetter}
                         </span>
-                        <span className="flex-1 leading-relaxed">
-                          {opt.optionText}
+
+                        <span className="flex-1">
+                          <MathText text={opt.optionText} />
                         </span>
+
                         {isAnswered && isCorrect && (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                         )}
+
                         {isAnswered && isChosen && !isCorrect && (
-                          <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+                          <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
                         )}
                       </button>
                     );
@@ -215,34 +225,15 @@ export function QuestionsBlockRenderer({ block }: QuestionsBlockRendererProps) {
                 </div>
               )}
 
-              {/* Short Answer / Identification Hint Box */}
-              {!isMCQ && question.hint && !isRevealed && (
-                <div className="text-xs text-[#555555] bg-white p-3 rounded-xl border border-dashed border-[#E5E5E5] italic">
-                  💡 Hint: {question.hint}
-                </div>
-              )}
-
-              {/* Short Answer Revealed Answer */}
-              {!isMCQ && isRevealed && question.expectedAnswer && (
-                <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1">
-                  <div className="font-mono font-bold text-emerald-800 uppercase tracking-wider text-[10px]">
-                    Model CBSE Answer
+              {/* Explanation / Answer Reveal */}
+              {isRevealed && question.explanation && (
+                <div className="p-4 rounded-xl bg-white border border-[#E5E5E5] space-y-1.5 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-1.5 type-metadata font-bold text-emerald-800">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Explanation & Key Concepts</span>
                   </div>
-                  <div className="font-semibold text-sm">
-                    {question.expectedAnswer}
-                  </div>
-                </div>
-              )}
-
-              {/* Explanation Box (Visible if revealed or answered) */}
-              {isRevealed && (
-                <div className="p-4 rounded-xl bg-white border border-[#E5E5E5] text-xs sm:text-sm text-slate-700 leading-relaxed space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-black mb-1">
-                    <Sparkles className="w-3.5 h-3.5 text-[#C0222E]" />
-                    <span>Detailed CBSE Solution & Explanation</span>
-                  </div>
-                  <div className="whitespace-pre-line text-slate-600">
-                    {question.explanation}
+                  <div className="type-body text-slate-700">
+                    <MathText text={question.explanation} />
                   </div>
                 </div>
               )}

@@ -12,6 +12,12 @@ import {
 } from "lucide-react";
 import { getChapterWithTopics } from "../queries";
 import { EmptyLessonState } from "@/components/lesson/empty-lesson-state";
+import {
+  PageTitle,
+  SectionTitle,
+  BodyParagraph,
+  CaptionText,
+} from "@/components/ui/typography";
 
 interface ChapterDetailViewProps {
   subjectSlug: string;
@@ -56,7 +62,7 @@ export async function ChapterDetailView({
           <div className="flex items-center gap-3">
             <Link
               href={`/${subjectSlug}`}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-black hover:text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-xs cursor-pointer capitalize"
+              className="type-button flex items-center gap-2 px-3.5 py-2 rounded-xl text-black hover:text-black bg-[#FAFAFA] hover:bg-slate-100 border border-[#E5E5E5] transition-all active:scale-95 shadow-xs cursor-pointer capitalize"
             >
               <ArrowLeft className="w-4 h-4 text-[#C0222E]" />
               <span>Back to {chapterData.subjectName}</span>
@@ -69,7 +75,7 @@ export async function ChapterDetailView({
       <section className="bg-white border-b border-[#E5E5E5]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
           {/* Breadcrumbs */}
-          <nav className="flex items-center gap-2 text-xs font-medium text-[#555555] mb-4">
+          <nav className="flex items-center gap-2 type-metadata font-medium text-[#555555] mb-4">
             <Link href="/" className="hover:text-black transition-colors">
               Dashboard
             </Link>
@@ -88,7 +94,7 @@ export async function ChapterDetailView({
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span
-                  className="text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase"
+                  className="type-metadata font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase"
                   style={{
                     background: "var(--brand-tint)",
                     color: "var(--brand)",
@@ -98,38 +104,40 @@ export async function ChapterDetailView({
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>CBSE CLASS 12 • {chapterData.subjectName}</span>
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                <span className="type-metadata font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>Chapter {chapterData.displayOrder}</span>
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FAFAFA] text-[#555555] border border-[#E5E5E5] flex items-center gap-1">
+                <span className="type-metadata font-semibold px-2.5 py-1 rounded-full bg-[#FAFAFA] text-[#555555] border border-[#E5E5E5] flex items-center gap-1">
                   <Layers className="w-3.5 h-3.5" />
                   <span>{publishedTopics.length} Topics</span>
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black text-black tracking-tight">
+              {/* Page Title: 32px desktop / 28px mobile, 700 */}
+              <PageTitle>
                 {chapterData.name}
-              </h1>
+              </PageTitle>
 
-              <p className="text-base sm:text-lg text-[#555555] max-w-2xl leading-relaxed">
+              {/* Body: 17px desktop / 16px mobile, 1.7 line height */}
+              <BodyParagraph className="text-[#555555] max-w-2xl">
                 {chapterData.description ||
                   "Learn chapter concepts step by step with interactive lessons, formula solvers, and practice questions."}
-              </p>
+              </BodyParagraph>
             </div>
 
             {/* Quick Stats Card */}
             <div className="flex-shrink-0">
               <div className="p-5 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] shadow-xs flex flex-col gap-3 min-w-[240px]">
-                <div className="flex items-center justify-between text-xs font-bold text-[#555555] uppercase tracking-wider">
+                <div className="flex items-center justify-between type-metadata font-bold text-[#555555] uppercase tracking-wider">
                   <span>Curriculum</span>
                   <span className="text-[#C0222E]">CBSE 2026</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
+                <div className="flex items-center gap-2 type-caption text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Sequential Topic Path</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
+                <div className="flex items-center gap-2 type-caption text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Interactive Exercises</span>
                 </div>
@@ -143,12 +151,12 @@ export async function ChapterDetailView({
       <section className="py-12 sm:py-16 flex-1 bg-[#FAFAFA]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="mb-8">
-            <h2 className="text-2xl font-black text-black tracking-tight mb-2">
+            <SectionTitle className="mb-2">
               Chapter Topics
-            </h2>
-            <p className="text-sm text-[#555555]">
+            </SectionTitle>
+            <CaptionText className="text-[#555555]">
               Select a topic below to explore concepts, visual representations, and fundamental definitions.
-            </p>
+            </CaptionText>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -163,7 +171,7 @@ export async function ChapterDetailView({
                 >
                   {/* Topic Number */}
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center tabular-nums text-lg font-black flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center tabular-nums type-h4 font-bold flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
                     style={{
                       background: "var(--brand-tint)",
                       color: "var(--brand)",
@@ -176,14 +184,14 @@ export async function ChapterDetailView({
                   {/* Topic Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <h3 className="text-base font-bold text-black group-hover:text-[#C0222E] transition-colors truncate">
+                      <h3 className="type-button text-black group-hover:text-[#C0222E] transition-colors truncate">
                         {topic.name}
                       </h3>
                       <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#C0222E] group-hover:translate-x-1 transition-all flex-shrink-0" />
                     </div>
-                    <p className="text-xs text-[#555555] leading-relaxed line-clamp-2">
+                    <CaptionText className="text-[#555555] line-clamp-2">
                       {topic.description || "Explore chapter topic concepts."}
-                    </p>
+                    </CaptionText>
                   </div>
                 </Link>
               );
@@ -215,27 +223,28 @@ export async function ChapterDetailView({
                   className="h-8 w-auto object-contain"
                 />
               </div>
-              <p className="text-xs text-[#555555] leading-relaxed max-w-sm">
+              <p className="type-metadata text-[#555555] leading-relaxed max-w-sm">
                 Explore interactive concepts, visual learning, formulas, notes,
                 and practice questions designed for CBSE Class 12 students.
+                Powered by EDUiDEAL Academy.
               </p>
             </div>
 
             <div className="md:col-span-2">
-              <h4 className="font-bold text-xs text-black uppercase tracking-wider mb-3">
-                EDUiDEAL Academy Branches
+              <h4 className="font-bold type-metadata text-black uppercase tracking-wider mb-4">
+                Branch Campuses
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {BRANCHES.map((b) => (
                   <div
                     key={b.city}
-                    className="p-3 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5]"
+                    className="p-3.5 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5]"
                   >
-                    <div className="flex items-center gap-1 text-xs font-bold text-black">
-                      <MapPin className="w-3 h-3 text-[#C0222E]" />
+                    <div className="flex items-center gap-1.5 type-metadata font-bold text-black">
+                      <MapPin className="w-3.5 h-3.5 text-[#C0222E]" />
                       <span>{b.city}</span>
                     </div>
-                    <div className="text-[11px] text-[#555555] mt-0.5">
+                    <div className="text-[11px] text-[#555555] mt-1">
                       {b.address}
                     </div>
                     <div className="text-[11px] font-semibold text-[#C0222E] mt-1">
@@ -247,7 +256,7 @@ export async function ChapterDetailView({
             </div>
           </div>
 
-          <div className="mt-10 pt-6 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#555555]">
+          <div className="mt-8 pt-8 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center justify-between gap-4 type-metadata text-[#555555]">
             <span>
               &copy; 2026 Learnova &bull; EDUiDEAL ACADEMY. All rights reserved.
             </span>
@@ -260,7 +269,7 @@ export async function ChapterDetailView({
               </Link>
               <span>&bull;</span>
               <Link href="/" className="hover:text-[#C0222E] transition-colors">
-                Subject Directory
+                Academic Dashboard
               </Link>
             </div>
           </div>

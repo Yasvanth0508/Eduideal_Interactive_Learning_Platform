@@ -15,7 +15,7 @@ const DynamicGraphBlockRenderer = dynamic(
   () => import("./graph-block-renderer").then((m) => m.GraphBlockRenderer),
   {
     loading: () => (
-      <div className="w-full h-[360px] my-6 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-xs text-[#555555] animate-pulse">
+      <div className="w-full h-[360px] my-6 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center type-caption text-[#555555] animate-pulse">
         Loading scientific graph module...
       </div>
     ),
@@ -27,7 +27,7 @@ const DynamicThreeDBlockRenderer = dynamic(
   () => import("./three-d-block-renderer").then((m) => m.ThreeDBlockRenderer),
   {
     loading: () => (
-      <div className="w-full h-[360px] my-6 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-xs text-[#555555] animate-pulse">
+      <div className="w-full h-[360px] my-6 rounded-2xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center type-caption text-[#555555] animate-pulse">
         Loading 3D visualization engine...
       </div>
     ),
@@ -65,11 +65,11 @@ export function ContentBlockRenderer({ block }: ContentBlockRendererProps) {
     default: {
       const exhaustiveCheck: string = (block as { type?: string }).type || "UNKNOWN";
       return (
-        <div className="p-6 my-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-3">
+        <div className="p-6 my-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 type-caption flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
           <div>
             <p className="font-semibold">Unsupported Content Block</p>
-            <p className="text-[11px] text-amber-700">
+            <p className="type-metadata text-amber-700">
               The content block type &ldquo;{exhaustiveCheck}&rdquo; does not have an active renderer configured.
             </p>
           </div>

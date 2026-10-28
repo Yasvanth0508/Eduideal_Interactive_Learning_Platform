@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import { typographyCssVariablesText } from "@/styles/typography";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 
@@ -8,12 +9,14 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -36,6 +39,12 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased scroll-smooth`}
     >
+      <head>
+        <style
+          id="eduideal-centralized-typography"
+          dangerouslySetInnerHTML={{ __html: typographyCssVariablesText }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans bg-white text-black selection:bg-[#C0222E] selection:text-white">
         <Providers>{children}</Providers>
       </body>
