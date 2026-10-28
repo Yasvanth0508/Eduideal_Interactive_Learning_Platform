@@ -24,45 +24,58 @@ export interface CurrentUser {
  * Loads the current authenticated user and their organization details.
  * Calls supabase.auth.getUser() (never getSession), then loads the users row by id
  * joined with branches.
- * Returns null if there is no auth user or no matching users row.
+ * Returns null if there is no auth user, no matching users row, or if any error occurs.
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-    error: authError,
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  if (authError || !authUser) {
+    if (authError || !authUser) {
+      return null;
+    }
+
+    const rows = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        role: users.role,
+        branchId: users.branchId,
+        registerNumber: users.registerNumber,
+        classId: users.classId,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        branchName: branches.name,
+        branchSlug: branches.slug,
+        branchIsActive: branches.isActive,
+      })
+      .from(users)
+      .innerJoin(branches, eq(users.branchId, branches.id))
+      .where(eq(users.id, authUser.id))
+      .limit(1);
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    return rows[0];
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      (error as { digest: string }).digest === "DYNAMIC_SERVER_USAGE"
+    ) {
+      throw error;
+    }
+    console.error("[getCurrentUser] Failed to resolve current user session:", error);
     return null;
   }
-
-  const rows = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      name: users.name,
-      role: users.role,
-      branchId: users.branchId,
-      registerNumber: users.registerNumber,
-      classId: users.classId,
-      isActive: users.isActive,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-      branchName: branches.name,
-      branchSlug: branches.slug,
-      branchIsActive: branches.isActive,
-    })
-    .from(users)
-    .innerJoin(branches, eq(users.branchId, branches.id))
-    .where(eq(users.id, authUser.id))
-    .limit(1);
-
-  if (rows.length === 0) {
-    return null;
-  }
-
-  return rows[0];
 }
 
 /**
@@ -78,8 +91,12 @@ export async function requireUser(): Promise<CurrentUser> {
   }
 
   if (!user.isActive || !user.branchIsActive) {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error("[requireUser] Signout error:", e);
+    }
     redirect("/login");
   }
 

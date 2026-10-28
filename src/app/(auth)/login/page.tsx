@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     "Sign in with your register number or administrator email to access personalized learning.",
 };
 
+export const dynamic = "force-dynamic";
+
 interface LoginPageProps {
   searchParams?: Promise<{
     next?: string;

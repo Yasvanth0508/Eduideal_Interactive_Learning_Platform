@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Limits concurrent build worker threads to prevent out-of-memory crashes on memory-constrained systems
+    cpus: 2,
+  },
 };
 
 export default nextConfig;
